@@ -245,7 +245,7 @@ void Reset_Handler(void) {
     set_sysclk_to_168();
     init_systick(SystemCoreClock / 1000);
     DWTInit();
-    //uartinit();
+    uartinit();
     //hal_w25q_spi_init();
     //SPI_Flash_Init();
     //kprintf("spiflash : %x\n",SPI_FLASH_TYPE);
@@ -254,13 +254,13 @@ void Reset_Handler(void) {
 
     //NVIC_DisableIRQ(OTG_FS_IRQn);
 
-    RCC->AHB2ENR |= RCC_AHB2ENR_OTGFSEN;
-    _BST(GPIOA->AFR[1], (0x0A << 12) | (0x0A << 16));
-    _BMD(GPIOA->MODER, (0x03 << 22) | (0x03 << 24), (0x02 << 22) | (0x02 << 24));
-    cdc_init_usbd();
+    //RCC->AHB2ENR |= RCC_AHB2ENR_OTGFSEN;
+    //_BST(GPIOA->AFR[1], (0x0A << 12) | (0x0A << 16));
+   // _BMD(GPIOA->MODER, (0x03 << 22) | (0x03 << 24), (0x02 << 22) | (0x02 << 24));
+   // cdc_init_usbd();
   
-    NVIC_EnableIRQ(OTG_FS_IRQn);
-    NVIC_SetPendingIRQ(OTG_FS_IRQn);
+   // NVIC_EnableIRQ(OTG_FS_IRQn);
+   // NVIC_SetPendingIRQ(OTG_FS_IRQn);
     irq_enable();
     main();
 

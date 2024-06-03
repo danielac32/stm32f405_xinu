@@ -5,7 +5,7 @@
 #include <interrupt.h>
 #include <string.h>
 #include <uart.h>
-#include <usb_cdc_conf.h>
+//#include <usb_cdc_conf.h>
 
 
 extern  void _doprnt(char *, va_list, int (*)(int));
@@ -13,7 +13,7 @@ extern  void _doprnt(char *, va_list, int (*)(int));
  
 int lib_putc(int ch)
 {
-    
+    putcharuart(ch);
   /*uint32 mask;
   mask = irq_disable();
 
@@ -25,7 +25,7 @@ int lib_putc(int ch)
   while(!(USART6->SR &  USART_SR_TXE));
   irq_restore(mask);*/
 
-  uint32 q = irq_disable();//
+  /*uint32 q = irq_disable();//
   while(1){
       int len = usbd_ep_write(&udev, CDC_TXD_EP, &ch, 1);
       if (len < 0){
@@ -33,7 +33,7 @@ int lib_putc(int ch)
       }else break;
   }
   //putchar(ch);
-  irq_restore(q);//
+  irq_restore(q);//*/
 
   return OK;
 }

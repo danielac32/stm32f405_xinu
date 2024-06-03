@@ -17,7 +17,7 @@
 #include "disk.h"
 #include "fat_filelib.h"
 #include <flash.h>
-#include <usb_cdc_conf.h>
+//#include <usb_cdc_conf.h>
 
 
 extern uint32_t SystemCoreClock;
