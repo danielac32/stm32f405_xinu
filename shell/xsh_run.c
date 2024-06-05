@@ -6,6 +6,8 @@
 
 shellcmd xsh_run(int nargs, char *args[])
 {
+
+
 	char *tmp=full_path((char*)args[1]);
     if (tmp==NULL)return -1;
     FILE *fptr;
@@ -15,7 +17,7 @@ shellcmd xsh_run(int nargs, char *args[])
 
     int ret = elf_execve(tmp,&ximg);
     if(ret > 0){
-        int (*p) = (int *)ret;
+        /*int (*p) = (int *)ret;
         child = create(p,SHELL_CMDSTK, SHELL_CMDPRIO,tmp, 2, nargs, &args[0]);
         
         struct	procent *prptr;
@@ -23,13 +25,16 @@ shellcmd xsh_run(int nargs, char *args[])
         prptr->elf = TRUE;
         prptr->img = (void *)ximg.start;
         //free(prptr->img);
-        resume(child);
+        //resume(child);*/
 
     }else {
         printf("error loading elf process  %d %s\n",ret,tmp);
+        return -1;
     }
-
+    
+    free((void *)ximg.start);
     update_path();
+   // resume(child);
 
 
 	 
