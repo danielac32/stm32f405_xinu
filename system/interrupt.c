@@ -3,8 +3,8 @@
 #include <interrupt.h>
 #include <string.h>
 #include <stm32.h>
-extern uint32_t SystemCoreClock;
 
+extern uint32_t SystemCoreClock;
 uint64_t clockticks = 0;//STK_LOAD_RELOAD + 1; // rolls over after 2^64/96MHz = 6089.1097 years
 
 uint64_t   cycleCount(void) { 
@@ -35,4 +35,3 @@ void delay_us(uint32_t delay_us)
     delay_us *= (SystemCoreClock / 1000000);
     while ((DWT->CYCCNT - start) < delay_us);
 }
-

@@ -17,10 +17,6 @@ void hal_sd_spi_slow(void);
 void hal_sd_spi_fast(void);
 
 
-void hal_st7735_spi_init(void);
-void hal_st7735_spi_select(void);
-void hal_st7735_spi_release(void);
-uint8_t hal_st7735_spi_txrx(uint8_t data);
 
 
 #endif // HAL_W25Q_SPI_H_

@@ -1,6 +1,7 @@
 
 #include <gpio.h>
 
+ 
 #define GPIO_AFRLR(i)           ((i)>>3)
 #define GPIO_AF_PINi(i,af)      ((af)<<(((i)&7)*GPIO_AF_BITS))
 #define GPIO_AF_set(gpio,i,af)  ((gpio)->AFR[GPIO_AFRLR(i)] = \
@@ -28,6 +29,13 @@ void hw_set_pin(GPIO_TypeDef* gpioport, uint8 pin, uint8 state)
     gpioport->ODR = (gpioport->ODR & ~(1 << pin)) | ((state & 1) << pin);
 }
 
+
+void hw_toggle_pin(GPIO_TypeDef* gpioport, uint8 pin)
+{
+    gpioport->ODR ^= (gpioport->ODR & ~(1 << pin)) | ((1 & 1) << pin);
+}
+
+
 //--------------------------------------------
 // get state of GPIO input pin
 uint8 hw_get_pin(GPIO_TypeDef* gpioport, uint8 pin)
@@ -35,9 +43,4 @@ uint8 hw_get_pin(GPIO_TypeDef* gpioport, uint8 pin)
     uint8 ret;
     ret = (gpioport->IDR & (1 << pin)) >> pin;
     return ret;
-}
-
-void hw_toggle_pin(GPIO_TypeDef* gpioport, uint8 pin)
-{
-    gpioport->ODR ^= (gpioport->ODR & ~(1 << pin)) | ((1 & 1) << pin);
 }

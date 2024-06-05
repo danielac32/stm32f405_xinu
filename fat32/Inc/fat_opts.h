@@ -78,9 +78,10 @@
         #define FAT_PRINTF(a)               kprintf a
     // Include stdio to use printf
     #else
+        #include <kernel.h>
         #include <stdio.h>
         //#include <integer.h>
-        #define FAT_PRINTF(a)               kprintf a
+        #define FAT_PRINTF(a)               printf a
     #endif
 #endif
 

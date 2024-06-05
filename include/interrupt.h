@@ -1,24 +1,38 @@
+/* interrupt.h */
 #include "stdint.h"
 #include "stm32.h"
 #include "kernel.h"
-/* interrupt.h */
+#define NVIC_STIR	(uint32 *) 0xE000EF00
 
+/* System control block */
+#define SCB_ICSR	(uint32 *) 0xE000ED04
+#define PENDSV_INTR	28
 
-extern void clkinit();
+/* System control block base */
+//#define SCB_BASE	0xE000ED00
+
+/* Faults enable */
+#define	MPUFAULT_EN	16
+#define	BUSFAULT_EN	17
+#define USAGEFAULT_EN	18
+
+/* Exception vector */
+#define MEMFAULT_ENTRY		4
+#define BUSFAULT_ENTRY		5
+#define USAGEFAULT_ENTRY	6
+#define SVC_ENTRY		11
+#define PENDSV_ENTRY		14
+#define SYSTICK_ENTRY		15
+
 extern uint64_t clockticks; // rolls over after 2^64/96MHz = 6089.1097 years
 extern uint64_t   cycleCount(void);
 extern void delay(uint32_t usec);
 //extern void delay_ms(uint32_t delay_ms);
 extern void delay_us(uint32_t delay_us);
-extern void irq_enable(void);
-extern uint32_t irq_disable(void);
-extern uint32_t irq_restore(uint32_t irq);
-extern void halt();
+/* in file intr.S */
+extern	intmask	disable(void);
+extern	void	enable(void);
+extern	void	restore(uint32);
 
-extern	uint32	clktime;	/* current time in secs since boot	*/
-extern  uint32  count1000;      /* ms since last clock tick             */
-
-extern	qid16	sleepq;		/* queue for sleeping processes		*/
-extern	int32	slnonempty;	/* nonzero if sleepq is nonempty	*/
-extern	int32	*sltop;		/* ptr to key in first item on sleepq	*/
-extern	uint32	preempt;	/* preemption counter			*/
+#define SYS_ENTRY()   asm volatile("cpsid i")
+#define SYS_EXIT()    asm volatile("cpsie i")

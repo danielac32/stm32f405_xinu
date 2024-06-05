@@ -1,54 +1,51 @@
-/*
- * Copyright (C) 2013, 2014 F4OS Authors
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of
- * this software and associated documentation files (the "Software"), to deal in
- * the Software without restriction, including without limitation the rights to
- * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
- * of the Software, and to permit persons to whom the Software is furnished to do
- * so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
+/* stdio.h - definintions and constants for standard I/O functions */
 
-#ifndef STDIO_H_INCLUDED
-#define STDIO_H_INCLUDED
+
+/* Prototypes for formatted input functions */
+
+//extern	int	_doscan(char *,int *, int32 (*)(void),
+//			int32 (*)(char), int, int);
+//extern	int	sscanf(char *, char *, int);
+//extern  int   fscanf(int, char *, int);
+//#define	scanf(fmt, args)	fscanf(CONSOLE, fmt, args)
+
 #include <stdbool.h>
-#include <stdint.h>
-#include <stdarg.h>
-#include <string.h>
-#include <kernel.h>
+/* Definintion of standard input/ouput/error used with shell commands */
 
+#define	stdin	((proctab[currpid]).prdesc[0])
+#define	stdout	((proctab[currpid]).prdesc[1])
+#define	stderr	((proctab[currpid]).prdesc[2])
+
+
+/* Prototypes for formatted output functions */
+
+extern	int	fprintf(int, char *, ...);
+extern	int	printf(const char *, ...);
+extern	int	printf2(const char *, ...);
+extern	int	sprintf(char *, char *, ...);
+
+
+/* Prototypes for character input and output functions */
+
+extern	int	fgetc(int);
+extern	char	*fgets(char *, int, int);
+extern	int	fputc(int, int);
+extern	int	fputs(char *, int);
+extern	int	putchar(int);
+extern	int	getchar(void);
+
+extern void    hexdump(
+     void   *buffer,        /* Addresss of memory area  */
+     uint32 length,         /* Length in bytes      */
+     bool  canon           /* Print in ASCII or hex    */
+    );
  
 
-extern uint32 kprintf(const char *, ...);
-extern void    panic (
-     char   *msg            /* Message to display       */
+extern void    hexdump2(
+     void   *buffer,        /* Addresss of memory area  */
+     uint32 length,         /* Length in bytes      */
+     uint32 offset,
+     bool  canon           /* Print in ASCII or hex    */
     );
 
-
-
-int32 sprintf(
-      char      *str,       /* output string        */
-      char      *fmt,       /* format string        */
-      ...
-    );
-
-
-int32 sprintf2(
-      char      *str,       /* output string        */
-      char      *fmt,       /* format string        */
-      ...
-    );
-
-extern void hexDump(uint32 offset, void *addr, int len);
-#endif
+extern void hexDump2(uint32 offset, void *addr, int len) ;

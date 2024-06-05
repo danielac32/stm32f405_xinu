@@ -1,5 +1,3 @@
- 
-//#include <os.h>
 #include <memory.h>
 #include <interrupt.h>
 #include <stdint.h>
@@ -8,18 +6,16 @@
 #include <string.h>
 #include <stm32.h>
 #include <gpio.h>
-#include <uart.h>
 #include <spi.h>
 #include <w25qxxx.h>
-#include <usb_cdc_conf.h>
+ 
 
+
+extern void (*vector_table[])(void); 
+extern void nulluser();
+extern  void meminit(void); /* Initializes the free memory list */
 
 int ready_preemptive=0;
-extern void main(void);                            // in main.c
-extern void (*vector_table[])(void);               // in vector.c
-extern char _sidata, _sdata, _edata, _sbss, _ebss; // provided by linker script
-
- 
 #if !defined  (HSE_VALUE) 
   #define HSE_VALUE    ((uint32_t)25000000) /*!< Default value of the External oscillator in Hz */
 #endif /* HSE_VALUE */
@@ -37,7 +33,6 @@ const uint8_t APBPrescTable[8]  = {0, 0, 0, 0, 1, 2, 3, 4};
 #define PLL_N      336
 #define PLL_P      2
 #define PLL_Q      7
-
 
 static void SetSysClock(void)
 {
@@ -152,7 +147,6 @@ void SystemCoreClockUpdate(void)
 }
 
 
-
 void set_sysclk_to_168(void)
 {
   /* Enable HSE (CR: bit 16) */
@@ -209,7 +203,6 @@ void set_sysclk_to_168(void)
   SystemCoreClock = 168000000;
 }
 
-
 static void DWTInit(void)
 {
     CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
@@ -217,23 +210,21 @@ static void DWTInit(void)
     DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk; 
 }
 
- 
+
 
 
 void Reset_Handler(void) {
-
+    unsigned int* src = &_sidata;
+    unsigned int* dst = &_sdata;
     SCB->CPACR |= ((3UL << 10*2)|(3UL << 11*2));
-    irq_disable();
-    
-    char* src = &_sidata;
-    char* dst = &_sdata;
-
+    disable();
     while (dst < &_edata)
         *dst++ = *src++;
 
     for (dst = &_sbss; dst < &_ebss; dst++)
         *dst = 0;
-
+     
+    
 
     _BST(RCC->AHB1ENR, RCC_AHB1ENR_GPIOAEN);
     _BST(RCC->AHB1ENR, RCC_AHB1ENR_GPIOBEN);
@@ -245,25 +236,11 @@ void Reset_Handler(void) {
     set_sysclk_to_168();
     init_systick(SystemCoreClock / 1000);
     DWTInit();
-    uartinit();
-    //hal_w25q_spi_init();
-    //SPI_Flash_Init();
-    //kprintf("spiflash : %x\n",SPI_FLASH_TYPE);
-
-    meminit();
-
-    //NVIC_DisableIRQ(OTG_FS_IRQn);
-
-    //RCC->AHB2ENR |= RCC_AHB2ENR_OTGFSEN;
-    //_BST(GPIOA->AFR[1], (0x0A << 12) | (0x0A << 16));
-   // _BMD(GPIOA->MODER, (0x03 << 22) | (0x03 << 24), (0x02 << 22) | (0x02 << 24));
-   // cdc_init_usbd();
-  
-   // NVIC_EnableIRQ(OTG_FS_IRQn);
-   // NVIC_SetPendingIRQ(OTG_FS_IRQn);
-    irq_enable();
-    main();
-
+ 
+    nulluser();
     for (;;)
         __NOP(); // hang
 }
+
+
+

@@ -1,7 +1,8 @@
 /* kernel.h */
 
+/* General type declarations used throughout the kernel */
 
-#include <stdint.h>
+
 
 typedef unsigned int	UINT;	/* int must be 16-bit or 32-bit */
 typedef unsigned char	BYTE;	/* char must be 8-bit */
@@ -10,57 +11,27 @@ typedef unsigned short	WCHAR;	/* 16-bit unsigned integer */
 typedef unsigned long	DWORD;	/* 32-bit unsigned integer */
 typedef unsigned long 	dword;
 typedef unsigned short	word;	/* 16-bit unsigned integer */
-typedef BYTE	DSTATUS;
+typedef unsigned int 	size_t;
+typedef unsigned int 	uint;
+typedef unsigned short	ushort;
+
+
+//typedef unsigned char          uint8_t;
+//typedef unsigned short int     uint16_t;
+//typedef unsigned int           uint32_t;
+//typedef unsigned long long int uint64_t;
 //typedef unsigned long uintptr_t;
 
-/* Function declaration return types */
 
-#define local	static		/* Local procedure or variable declar.	*/
+typedef	unsigned char	byte;
+typedef	unsigned char	uint8;
+typedef	int		int32;
+typedef	short		int16;
+typedef	unsigned int	uint32;
+typedef	unsigned short	uint16;
+typedef	unsigned long long uint64;
 
-/* Universal return constants */
-//#define NULL	(void *)0		/* null pointer for linked lists	*/
-#define NULLCH	'\0'		/* null character			*/
-#define	NULLSTR	""		/* null string				*/
-
-#define OK	( 1)		/* normal system call return		*/
-#define	SYSERR	(-1)		/* system call failed			*/
-//#define	EOF	(-2)		/* End-of-file (usually from read)	*/
-#define	TIMEOUT	(-3)		/* system call timed out		*/
-
- 
-#define	MINSTK	400		/* minimum stack size in bytes		*/
-
-#define	CONTEXT	64		/* bytes in a function call context on	*/
-				/* the run-time stack			*/
-#define	QUANTUM	10		/* time slice in milliseconds		*/
-
-/* Size of the stack for the null process */
-
-#define	NULLSTK		4096	/* stack size for null process		*/
-
-/* Prototypes of I/O functions used throughout the kernel */
-
-//uint32	kprintf(const char *fmt, ...);
-//uint32	kputc(byte);
-//uint32	kgetc(void);
-
-#define PEND_SV()	*((unsigned int *)0xE000ED04) = (1 << 28);
-
-#define _BMD(reg, msk, val)     (reg) = (((reg) & ~(msk)) | (val))
-/* set bitfield */
-#define _BST(reg, bits)         (reg) = ((reg) | (bits))
-/* clear bitfield */
-#define _BCL(reg, bits)         (reg) = ((reg) & ~(bits))
-/* wait until bitfield set */
-#define _WBS(reg, bits)         while(((reg) & (bits)) == 0)
-/* wait until bitfield clear */
-#define _WBC(reg, bits)         while(((reg) & (bits)) != 0)
-/* wait for bitfield value */
-#define _WVL(reg, msk, val)     while(((reg) & (msk)) != (val))
-/* bit value */
-#define _BV(bit)                (0x01 << (bit))
-
- 
+/* Xinu-specific types */
 
 typedef	int32	sid32;		/* semaphore ID				*/
 typedef	int16	qid16;		/* queue ID				*/
@@ -84,25 +55,52 @@ typedef int32	process;	/* top-level function of a process	*/
 typedef	void	interrupt;	/* interrupt procedure			*/
 typedef	int32	status;		/* returned status value (OK/SYSERR)	*/
 
+#define local	static		/* Local procedure or variable declar.	*/
 
-#define CONSOLE              0	/* type tty      */
-#define NULLDEV              1	/* type null     */
-#define NAMESPACE            2	/* type nam      */
-#define SPI_1                 3	/* type spi      */
+/* Boolean constants */
 
-/* Control block sizes */
+#define NULLCH	'\0'		/* null character			*/
+#define	NULLSTR	""		/* null string				*/
 
-#define	Nnull	1
-#define	Ntty	1
-#define	Nnam	1
-#define	Nspi	1
+/* Universal return constants */
 
-#define NDEVS 4
+#define OK	( 1)		/* normal system call return		*/
+#define	SYSERR	(-1)		/* system call failed			*/
+#define	EOF	(-2)		/* End-of-file (usually from read)	*/
+#define	TIMEOUT	(-3)		/* system call timed out		*/
 
+extern	qid16	readylist;	/* global ID for list of ready processes*/
 
-/* Configuration and Size Constants */
+#define	MINSTK	400		/* minimum stack size in bytes		*/
 
-#define	NPROC	     10		/* number of user processes		*/
-#define	NSEM	     10		/* number of semaphores			*/
+#define	CONTEXT	64		/* bytes in a function call context on	*/
+				/* the run-time stack			*/
+#define	QUANTUM	10		/* time slice in milliseconds		*/
 
+/* Size of the stack for the null process */
+
+#define	NULLSTK		4096	/* stack size for null process		*/
+
+/* Prototypes of I/O functions used throughout the kernel */
+
+//char *	sys_printf(char *fmt, ...);
+syscall	kprintf(char *fmt, ...);
+syscall	kputc(byte);
+syscall	kgetc(void);
+
+#define PEND_SV()	*((unsigned int *)0xE000ED04) = (1 << 28);
+
+#define _BMD(reg, msk, val)     (reg) = (((reg) & ~(msk)) | (val))
+/* set bitfield */
+#define _BST(reg, bits)         (reg) = ((reg) | (bits))
+/* clear bitfield */
+#define _BCL(reg, bits)         (reg) = ((reg) & ~(bits))
+/* wait until bitfield set */
+#define _WBS(reg, bits)         while(((reg) & (bits)) == 0)
+/* wait until bitfield clear */
+#define _WBC(reg, bits)         while(((reg) & (bits)) != 0)
+/* wait for bitfield value */
+#define _WVL(reg, msk, val)     while(((reg) & (msk)) != (val))
+/* bit value */
+#define _BV(bit)                (0x01 << (bit))
 extern int ready_preemptive;

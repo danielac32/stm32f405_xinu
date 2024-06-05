@@ -9,15 +9,38 @@
 
 extern void _estack(void); // fake definition, will be filled in by linker script.
 
+
+void default_handler()
+{
+    uint32 * current_sp;
+
+   asm volatile("\
+        tst lr, #4; \
+        ite eq; \
+        mrseq %0, msp; \
+        mrsne %0, psp; \
+    " : "=r" (current_sp));
+
+
+    for (int i = 0; i < 15; i++) {
+        kprintf("STACK[%d]: %x\n", i, current_sp[i]);
+    }
+    
+ 
+}
+
+
 // Hang, let the watchdog reboot us.
 // TODO(lvd): reset usart0 and report unexpected irq
 void default_IRQ_Handler(void) {
+    default_handler();
     for (;;) {
             __WFE();
     }
 }
 
-// CM4 core fault handlers
+
+
 void Reset_Handler(void) __attribute__((weak, alias("default_IRQ_Handler")));
 void NonMaskableInt_Handler(void) __attribute__((weak, alias("default_IRQ_Handler")));
 void Reserved_3_Handler(void) __attribute__((weak, alias("default_IRQ_Handler")));
@@ -141,90 +164,90 @@ __attribute__((section(".isr_vector"))) void (*vector_table[])(void) = {
     PendSV_Handler,
     SysTick_Handler,
     
-	WWDG_Handler,
-	PVD_Handler,
-	TAMP_STAMP_Handler,
-	RTC_WKUP_Handler,
-	FLASH_Handler,
-	RCC_Handler,
-	EXTI0_Handler,
-	EXTI1_Handler,
-	EXTI2_Handler,
-	EXTI3_Handler,
-	EXTI4_Handler,
-	DMA1_Stream0_Handler,
-	DMA1_Stream1_Handler,
-	DMA1_Stream2_Handler,
-	DMA1_Stream3_Handler,
-	DMA1_Stream4_Handler,
-	DMA1_Stream5_Handler,
-	DMA1_Stream6_Handler,
-	ADC_Handler,
-	RESERVED_19_Handler,
-	RESERVED_20_Handler,
-	RESERVED_21_Handler,
-	RESERVED_22_Handler,
-	EXTI9_5_Handler,
-	TIM1_BRK_TIM9_Handler,
-	TIM1_UP_TIM10_Handler,
-	TIM1_TRG_COM_TIM11_Handler,
-	TIM1_CC_Handler,
-	TIM2_Handler,
-	TIM3_Handler,
-	TIM4_Handler,
-	I2C1_EV_Handler,
-	I2C1_ER_Handler,
-	I2C2_EV_Handler,
-	I2C2_ER_Handler,
-	SPI1_Handler,
-	SPI2_Handler,
-	USART1_Handler,
-	USART2_Handler,
-	RESERVED_39_Handler,
-	EXTI15_10_Handler,
-	RTC_Alarm_Handler,
-	OTG_FS_WKUP_Handler,
-	RESERVED_43_Handler,
-	RESERVED_44_Handler,
-	RESERVED_45_Handler,
-	RESERVED_46_Handler,
-	DMA1_Stream7_Handler,
-	RESERVED_48_Handler,
-	SDIO_Handler,
-	TIM5_Handler,
-	SPI3_Handler,
-	RESERVED_52_Handler,
-	RESERVED_53_Handler,
-	RESERVED_54_Handler,
-	RESERVED_55_Handler,
-	DMA2_Stream0_Handler,
-	DMA2_Stream1_Handler,
-	DMA2_Stream2_Handler,
-	DMA2_Stream3_Handler,
-	DMA2_Stream4_Handler,
-	RESERVED_61_Handler,
-	RESERVED_62_Handler,
-	RESERVED_63_Handler,
-	RESERVED_64_Handler,
-	RESERVED_65_Handler,
-	RESERVED_66_Handler,
-	OTG_FS_Handler,
-	DMA2_Stream5_Handler,
-	DMA2_Stream6_Handler,
-	DMA2_Stream7_Handler,
-	USART6_Handler,
-	I2C3_EV_Handler,
-	I2C3_ER_Handler,
-	RESERVED_74_Handler,
-	RESERVED_75_Handler,
-	RESERVED_76_Handler,
-	RESERVED_77_Handler,
-	RESERVED_78_Handler,
-	RESERVED_79_Handler,
-	RESERVED_80_Handler,
-	FPU_Handler,
-	RESERVED_82_Handler,
-	RESERVED_83_Handler,
-	SPI4_Handler,
-	SPI5_Handler,
+    WWDG_Handler,
+    PVD_Handler,
+    TAMP_STAMP_Handler,
+    RTC_WKUP_Handler,
+    FLASH_Handler,
+    RCC_Handler,
+    EXTI0_Handler,
+    EXTI1_Handler,
+    EXTI2_Handler,
+    EXTI3_Handler,
+    EXTI4_Handler,
+    DMA1_Stream0_Handler,
+    DMA1_Stream1_Handler,
+    DMA1_Stream2_Handler,
+    DMA1_Stream3_Handler,
+    DMA1_Stream4_Handler,
+    DMA1_Stream5_Handler,
+    DMA1_Stream6_Handler,
+    ADC_Handler,
+    RESERVED_19_Handler,
+    RESERVED_20_Handler,
+    RESERVED_21_Handler,
+    RESERVED_22_Handler,
+    EXTI9_5_Handler,
+    TIM1_BRK_TIM9_Handler,
+    TIM1_UP_TIM10_Handler,
+    TIM1_TRG_COM_TIM11_Handler,
+    TIM1_CC_Handler,
+    TIM2_Handler,
+    TIM3_Handler,
+    TIM4_Handler,
+    I2C1_EV_Handler,
+    I2C1_ER_Handler,
+    I2C2_EV_Handler,
+    I2C2_ER_Handler,
+    SPI1_Handler,
+    SPI2_Handler,
+    USART1_Handler,
+    USART2_Handler,
+    RESERVED_39_Handler,
+    EXTI15_10_Handler,
+    RTC_Alarm_Handler,
+    OTG_FS_WKUP_Handler,
+    RESERVED_43_Handler,
+    RESERVED_44_Handler,
+    RESERVED_45_Handler,
+    RESERVED_46_Handler,
+    DMA1_Stream7_Handler,
+    RESERVED_48_Handler,
+    SDIO_Handler,
+    TIM5_Handler,
+    SPI3_Handler,
+    RESERVED_52_Handler,
+    RESERVED_53_Handler,
+    RESERVED_54_Handler,
+    RESERVED_55_Handler,
+    DMA2_Stream0_Handler,
+    DMA2_Stream1_Handler,
+    DMA2_Stream2_Handler,
+    DMA2_Stream3_Handler,
+    DMA2_Stream4_Handler,
+    RESERVED_61_Handler,
+    RESERVED_62_Handler,
+    RESERVED_63_Handler,
+    RESERVED_64_Handler,
+    RESERVED_65_Handler,
+    RESERVED_66_Handler,
+    OTG_FS_Handler,
+    DMA2_Stream5_Handler,
+    DMA2_Stream6_Handler,
+    DMA2_Stream7_Handler,
+    USART6_Handler,
+    I2C3_EV_Handler,
+    I2C3_ER_Handler,
+    RESERVED_74_Handler,
+    RESERVED_75_Handler,
+    RESERVED_76_Handler,
+    RESERVED_77_Handler,
+    RESERVED_78_Handler,
+    RESERVED_79_Handler,
+    RESERVED_80_Handler,
+    FPU_Handler,
+    RESERVED_82_Handler,
+    RESERVED_83_Handler,
+    SPI4_Handler,
+    SPI5_Handler,
 };

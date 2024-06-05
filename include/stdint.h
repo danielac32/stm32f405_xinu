@@ -116,5 +116,4 @@ typedef unsigned su_int;
 typedef long long di_int;
 typedef unsigned long long du_int;
 
-
 #endif

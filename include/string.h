@@ -1,10 +1,9 @@
-/* string.h */
-
 #ifndef STRING_H_INCLUDED
 #define STRING_H_INCLUDED
 
-#include <stddef.h>
+
 #include <stdint.h>
+#include <stddef.h>
 
 int chrnlst(char c, const char *l);
 char * strtok(char *, const char *);
@@ -31,5 +30,7 @@ int memcmp(const void *, const void *, int );
 void memset(void *p, uint8_t value, uint32_t size);
 int strcspn(const char *, register const char *);
 int strspn (const char *,const char *);
-char *strdup (const char *s);
+char *strndup(const char *str, int n);
+char *strdup(const char *str);
+
 #endif

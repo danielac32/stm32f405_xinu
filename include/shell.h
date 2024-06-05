@@ -1,7 +1,10 @@
+/* shell.h - Declarations and constants used by the Xinu shell */
 
-#define SHELL_BUFLEN	64	/* Length of input buffer	*/
-#define SHELL_MAXTOK	6		/* Maximum tokens per line	*/
-#define SHELL_CMDSTK	4096	/* Size of stack for process	*/
+/* Size constants */
+
+#define SHELL_BUFLEN	TY_IBUFLEN+1	/* Length of input buffer	*/
+#define SHELL_MAXTOK	32		/* Maximum tokens per line	*/
+#define SHELL_CMDSTK	4096/2		/* Size of stack for process	*/
 					/*    that executes command	*/
 #define	SHELL_ARGLEN	(SHELL_BUFLEN+SHELL_MAXTOK) /* Argument area	*/
 #define SHELL_CMDPRIO	20		/* Process priority for command	*/
@@ -9,6 +12,18 @@
 /* Message constants */
 
 /* Shell banner (assumes VT100) */
+
+#define	SHELL_BAN0	"\033[31;1m"
+#define SHELL_BAN1      "------------------------------------------"
+#define SHELL_BAN2      "   __    __   _____    _   _    _    _    "
+#define SHELL_BAN3      "   \\ \\  / /  |__ __|  | \\ | |  | |  | |   "
+#define SHELL_BAN4      "    \\ \\/ /     | |    |  \\| |  | |  | |   "
+#define SHELL_BAN5      "    / /\\ \\    _| |_   | \\   |  | |  | |   "
+#define SHELL_BAN6      "   / /  \\ \\  |     |  | | \\ |  \\  --  /   "
+#define SHELL_BAN7      "   --    --   -----    -   -     ----     "
+#define SHELL_BAN8	"       STM32 Version by Daniel Quintero	   "
+#define SHELL_BAN9      "------------------------------------------"
+#define	SHELL_BAN10	"\033[0m\n"
 
 /* Messages shell displays for user */
 
@@ -52,57 +67,19 @@
 /* Structure of an entry in the table of shell commands */
 
 struct	cmdent	{			/* Entry in command table	*/
-	char	cname[16];			/* Name of command		*/
-    int stack;
-	int	(*cfunc)(int,char*[]);/* Function for command		*/
+	char	*cname;			/* Name of command		*/
+	bool8	cbuiltin;		/* Is this a builtin command?	*/
+	int32	(*cfunc)(int32,char*[]);/* Function for command		*/
 };
 
 extern	uint32	ncmd;
 extern	const	struct	cmdent	cmdtab[];
-extern int32	lexan (
-	  char		*line,		/* Input line terminated with	*/
-					/*   NEWLINE or NULLCH		*/
-	  int32		len,		/* Length of the input line,	*/
-					/*   including NEWLINE		*/
-	  char		*tokbuf,	/* Buffer into which tokens are	*/
-					/*   stored with a null		*/
-					/*   following each token	*/
-	  int32		*tlen,		/* Place to store number of	*/
-					/*   chars in tokbuf		*/
-	  int32		tok[],		/* Array of pointers to the	*/
-					/*   start of each token	*/
-	  int32		toktyp[]	/* Array that gives the type	*/
-					/*   of each token		*/
-	);
 
 
 
+typedef char buf_t[128];
 
-extern void shell();
+
 extern void update_path();
-extern void setGlobalPath();
 extern char* full_path(const char* name);
-extern int  cd(int argc, char *argv[]);
-extern int  ls(int argc, char *argv[]);
-extern int  cat(int argc, char *argv[]);
-extern int  dump(int argc, char *argv[]);
-extern int  echo(int argc, char *argv[]);
-extern int  help(int argc, char *argv[]);
-extern int  killp(int argc, char *argv[]);
-extern int  mem(int argc, char *argv[]);
-extern int  mkdirp(int argc, char *argv[]);
-extern int  ps(int argc, char *argv[]);
-extern int  pwd(int argc, char *argv[]);
-extern int  rm(int argc, char *argv[]);
-extern int  touch(int argc, char *argv[]);
-//int  run(int argc, char *argv[]);
-extern int  formatp(int argc, char *argv[]);
-//int load(int argc, char *argv[]);
-extern int  cd2(char *s);
-
-
-//#define MAX_PATH_LEN 128
-//extern char cwd[MAX_PATH_LEN];
-
-
-//void create_abs_path(const char *name, char *path, size_t len);
+extern buf_t path, curdir;
