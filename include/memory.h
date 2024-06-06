@@ -67,3 +67,19 @@ struct kmalloc_chunk {
 };
 
 extern struct kmalloc_chunk *head;
+
+
+typedef struct chunk_s {
+    struct chunk_s  *next;
+    size_t          size;
+    char            free;
+    //char 			pid;
+} chunk_t;
+
+
+extern chunk_t *it;
+
+void* do_malloc (size_t len);
+void do_free (void *p);
+void chunklist_init (uint32 heap_size);
+void info();

@@ -352,3 +352,93 @@ void cc_malloc_debug()
   }
   //restore(mask);
 }
+
+
+
+void* do_malloc (uint32 len) {
+
+    //sem_wait(&sem_malloc);
+    chunk_t* it = (chunk_t *)&end;
+    chunk_t *ch;
+
+    if (!len) {
+        return (NULL);
+    }
+    for (; it; it = it->next) {
+        if (!it->free) { /* occupied */
+            continue;
+        }
+        if (len + sizeof(chunk_t) > it->size) {
+            continue; /* free but too small  */
+        }
+        if (len + sizeof(chunk_t) + sizeof(chunk_t) >= it->size) {
+            /* free and just perfect in size, reserve it! */
+            it->free = 0;
+            //it->pid=getpid();
+            //sem_signal(&sem_malloc);
+            return ((char*)it + sizeof(chunk_t));
+        }
+        /* free but big, split it! */
+        ch = (chunk_t*)((char*)it + len + sizeof(chunk_t));
+        ch->next = it->next;
+        it->next = ch;
+
+        ch->free = it->free;
+
+        ch->size = it->size - (len + sizeof(chunk_t));
+        it->size -= ch->size;
+
+        it->free = 0;
+        //it->pid=getpid();
+        //sem_signal(&sem_malloc);
+        return ((char*)it + sizeof(chunk_t));
+    }
+    /* No more free memory */
+    //sem_signal(&sem_malloc);
+    return (NULL);
+}
+
+
+void do_free (void *p) {
+    //sem_wait(&sem_malloc);
+    chunk_t* it = (chunk_t *)&end;
+    if (!p) {
+        return;
+    }
+    memset(p, 0, sizeof(p));
+    /* mark chunk as free */
+    ((chunk_t*)((char*)p - sizeof(chunk_t)))->free = 1;
+
+    /* merge free chunks */
+    for (; it; it = it->next) {
+        while (it->free && it->next && it->next->free) {
+            /* merge with next free */
+            it->size += it->next->size;
+            it->next = it->next->next;
+        }
+    }
+    //it->free = 1;
+    //it->pid=getpid();
+   // sem_signal(&sem_malloc);
+    return;
+}
+
+
+void chunklist_init (uint32 heap_size) {
+    chunk_t* it = (chunk_t *)KMALLOC_START;
+    it->free = 1;
+    it->size = heap_size;
+    it->next = NULL;
+   // it->pid=-1;
+}
+
+void info() {
+    chunk_t* it = (chunk_t *)&end;
+    chunk_t* ch = it;
+
+    kprintf("============================\n");
+    for (; ch; ch = ch->next) {
+        kprintf("chunk:%d, size:%d, %s\n",(char*)ch - (char*)it,ch->size,ch->free ? "FREE" : "RESERVED");
+    }
+    kprintf("============================\n\n");
+}
