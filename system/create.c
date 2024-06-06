@@ -224,7 +224,7 @@ syscall	kill(
 	//free(prptr->prstkbase);
     if(prptr->elf == TRUE){
     	//kprintf("clean space %d\n",prptr->prstklen);
-        cc_free(prptr->img);
+        free(prptr->img);
         //freemem(prptr->img,prptr->size);
     }
 	/*if(riscv1[pid].running){// si hay un vm activa

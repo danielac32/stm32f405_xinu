@@ -433,7 +433,7 @@ void chunklist_init (uint32 heap_size) {
 }
 
 void info() {
-    chunk_t* it = (chunk_t *)&end;
+    chunk_t* it = (chunk_t *)KMALLOC_START;
     chunk_t* ch = it;
 
     kprintf("============================\n");

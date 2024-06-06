@@ -26,7 +26,7 @@ shellcmd xsh_run(int nargs, char *args[])
         struct	procent *prptr;
         prptr = &proctab[child];
         prptr->elf = TRUE;
-        prptr->img = ximg.start;
+        prptr->img = (void *)ximg.start;
         //prptr->size = ximg->size;
         //free(prptr->img);
         //resume(child);

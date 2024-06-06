@@ -173,11 +173,11 @@ void	nulluser()
 
     //cc_malloc_init(KMALLOC_START,KMALLOC_LENGTH);
    // cc_malloc_debug();
-	chunklist_init(KMALLOC_LENGTH);
-    info();
-    char *p=do_malloc(1000);
-    do_free(p);
-    info();
+	//chunklist_init(KMALLOC_LENGTH);
+  //info();
+  //  char *p=do_malloc(1000);
+  //  do_free(p);
+  //  info();
 	/* Initialize the Null process entry */	
 	int pid = create((void *)nullprocess, 256, 10, "Null process", 0, NULL);
 	struct procent * prptr = &proctab[pid];
