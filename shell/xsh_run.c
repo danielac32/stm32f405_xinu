@@ -4,17 +4,20 @@
 #include <fat_filelib.h>
 #include <elf.h>
 
+extern uint32 load_elf(const char *file);
 shellcmd xsh_run(int nargs, char *args[])
 {
 
-    disable();
+ 
 	char *tmp=full_path((char*)args[1]);
     if (tmp==NULL)return -1;
     FILE *fptr;
     exec_img ximg;
     int32	tmparg;
     int child;
+    
 
+   //load_elf(tmp);
     int ret = elf_execve(tmp,&ximg);
     if(ret > 0){
         int (*p) = (int *)ret;
@@ -24,6 +27,7 @@ shellcmd xsh_run(int nargs, char *args[])
         prptr = &proctab[child];
         prptr->elf = TRUE;
         prptr->img = ximg.start;
+        //prptr->size = ximg->size;
         //free(prptr->img);
         //resume(child);
 

@@ -9,7 +9,7 @@
 /* Embedded Xinu, Copyright (C) 2009.  All rights reserved. */
 
 #include <xinu.h>
-
+#include <stdio.h>
 
 /**
  * Request heap storage, record accounting information, returning pointer
@@ -57,6 +57,7 @@ void free(void *pmem)
     /* don't memfree if we fail basic checks */
     if (block->mnext != block)
     {
+
         return;
     }
     

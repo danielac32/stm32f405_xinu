@@ -10,6 +10,7 @@ typedef struct {
     void *end;
     void *entry;
     uint32_t offset;
+    uint32_t size;
 } exec_img;
 
 #define E_NOT_ELF_X       1
@@ -81,7 +82,7 @@ enum sh_flags {
 #define ALIGN(to, x)  ((x+(to)-1) & ~((to)-1))
 extern bool is_elf_x(ELF32_hdr *hdr);
 extern  bool is_compatible(ELF32_hdr *hdr);
-extern int load_elf( program_img *prg, exec_img *res);
+//extern int load_elf( program_img *prg, exec_img *res);
 
 extern uint32 elf_execve(const char *file, exec_img *res);
 #define EI_NIDENT 16

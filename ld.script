@@ -22,7 +22,7 @@ ENTRY(Reset_Handler)
 /* Define output sections */
 SECTIONS
 {
-  /* The startup code goes first into FLASHROM */
+
   
   /* The program code and other data goes into FLASHROM */
   .text :
@@ -44,6 +44,8 @@ SECTIONS
     _etext = .;        /* define a global symbols at end of code */
   } >FLASHROM
 
+
+   
 
    .ARM.extab   : { *(.ARM.extab* .gnu.linkonce.armextab.*) } >FLASHROM
     .ARM : {
@@ -128,7 +130,7 @@ SECTIONS
     . = . + _Min_Stack_Size;
     . = ALIGN(4);
   } >RAM
-
+  
   /* Remove information from the standard libraries */
   /DISCARD/ :
   {
@@ -136,7 +138,8 @@ SECTIONS
     libm.a ( * )
     libgcc.a ( * )
   }
-
+  
+  
   .ARM.attributes 0 : { *(.ARM.attributes) }
 }
 

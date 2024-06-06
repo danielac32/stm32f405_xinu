@@ -10,6 +10,10 @@ local	int newpid();
  *  create  -  create a process to start running a procedure
  *------------------------------------------------------------------------
  */
+
+
+
+
 pid32	create(
 	  void		*procaddr,	/* procedure address		*/
 	  uint32	ssize,		/* stack size in bytes		*/
@@ -30,6 +34,7 @@ pid32	create(
 	if (ssize < MINSTK)
 		ssize = MINSTK;
 	ssize = (uint32) roundew(ssize);
+	
 	if (((saddr = (uint32 *)getstk(ssize)) ==
 	    (uint32 *)SYSERR ) ||
 	    (pid=newpid()) == SYSERR || priority < 1 ) {
@@ -37,8 +42,8 @@ pid32	create(
 		restore(mask);
 		return SYSERR;
 	}
+    
 
-	
 	prcount++;
 	prptr = &proctab[pid];
     prptr->elf=FALSE;
@@ -216,9 +221,11 @@ syscall	kill(
 		close(prptr->prdesc[i]);
 	}
 	freestk(prptr->prstkbase, prptr->prstklen);
+	//free(prptr->prstkbase);
     if(prptr->elf == TRUE){
     	//kprintf("clean space %d\n",prptr->prstklen);
-        free(prptr->img);
+        cc_free(prptr->img);
+        //freemem(prptr->img,prptr->size);
     }
 	/*if(riscv1[pid].running){// si hay un vm activa
 	   riscv1[pid].running=0;
