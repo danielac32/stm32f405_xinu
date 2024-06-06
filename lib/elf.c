@@ -77,7 +77,7 @@ uint32 elf_execve(const char *file, exec_img *res)
                 while (1);
             ELF_OFFSET = (uint32)malloc(phdr->p_memsz + 8) & ~7;
             res->start = (void*)ELF_OFFSET; 
-
+            //res->offset = ELF_OFFSET;
             // Copy the program data into RAM for execution
             uint8 *src = (uint8 *)elfData + phdr->p_offset;
             uint8 *dst = (uint8 *)(ELF_OFFSET + phdr->p_vaddr);
@@ -87,7 +87,7 @@ uint32 elf_execve(const char *file, exec_img *res)
 
         phdr = (Elf32_Phdr *)((char *)phdr + ehdr->e_phentsize);
     }
-
+    //res->start = (void*)ELF_OFFSET; 
     // Zero the .bss section
     ELF32_shdr *bssSection = elf_find_section(ehdr, ".bss");
     if (bssSection != 0) {
@@ -121,6 +121,9 @@ uint32 elf_execve(const char *file, exec_img *res)
 
     fclose(fd);
     free(elfData);
+    res->offset=(ELF_OFFSET + ehdr->e_entry);
+    //res->start=(void*)ELF_OFFSET;
+
     // Return entry point
     //es->entry = (void*)((to_addr + hdr->e_entry) | 0x1);
     restore(q);
