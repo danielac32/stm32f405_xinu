@@ -26,7 +26,7 @@ extern	void	start(void);	/* Start of Xinu code			*/
 extern	void	*_end;		/* End of Xinu code			*/
 
 /* Function prototypes */
-
+extern void meminitcc();
 extern	void main(void);	/* Main is the first process created	*/
 static	void sysinit(); 	/* Internal system initialization	*/
 extern	void meminit(void);	/* Initializes the free memory list	*/
@@ -37,6 +37,7 @@ extern void usbTask();
 struct	procent	proctab[NPROC];	/* Process table			*/
 struct	sentry	semtab[NSEM];	/* Semaphore table			*/
 struct	memblk	memlist;	/* List of free memory blocks		*/
+struct	memblkcc	memlistcc;	/* List of free memory blocks		*/
 
 /* Active system status */
 
@@ -134,6 +135,8 @@ void	nulluser()
     hw_cfg_pin(GPIOx(GPIO_A),0,GPIOCFG_MODE_INP | GPIOCFG_OSPEED_VHIGH  | GPIOCFG_OTYPE_OPEN | GPIOCFG_PUPD_PUP);
 
     meminit();
+    meminitcc();
+
 	platinit();
     /* Enable interrupts */
 	enable();

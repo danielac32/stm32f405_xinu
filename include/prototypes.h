@@ -3,7 +3,21 @@
 
 
 
- 
+void	meminit(void);
+
+syscall	freememcc(
+	  char		*blkaddr,	/* Pointer to memory block	*/
+	  uint32	nbytes		/* Size of block in bytes	*/
+	);
+
+char  	*getmemcc(
+	  uint32	nbytes		/* Size of memory requested	*/
+	);
+
+char  	*getstkcc(
+	  uint32	nbytes		/* Size of memory requested	*/
+	);
+
 
 
  

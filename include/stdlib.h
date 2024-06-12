@@ -21,6 +21,13 @@ void* realloc(void* ptr, size_t size);
 void  *calloc(size_t nmemb, size_t size);
 void *malloc(size_t );
 void free(void *);
+
+void* cc_realloc(void* ptr, size_t size);
+void  *cc_calloc(size_t nmemb, size_t size);
+void *cc_malloc(size_t );
+void cc_free(void *);
+
+
 void abort(void);
 int atoi(char buf[]);
 char *itoa(int number, char *buf, uint32_t len, uint32_t base);

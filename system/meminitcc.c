@@ -3,66 +3,58 @@
 #include <xinu.h>
 
 
-void	*minheap;	/* Start address of heap	*/
-void	*maxheap;	/* End address of heap		*/
+void	*minheapcc;	/* Start address of heap	*/
+void	*maxheapcc;	/* End address of heap		*/
 
-/*------------------------------------------------------------------------
- * meminit - Initialize the free memory list for BeagleBone Black
- *------------------------------------------------------------------------
- */
-void	meminit(void)
+
+void	meminitcc(void)
 {
-	struct	memblk *memptr;	/* Memory block pointer	*/
+	struct	memblkcc *memptr;	/* Memory block pointer	*/
 
-	/* Initialize the minheap and maxheap variables */
+	/* Initialize the minheapcc and maxheapcc variables */
 
-	minheap = (void *)&end;
+	minheapcc = (void *)0x10000000;
 	/* 1024 bytes is reserved for supervise mode handling */
-	maxheap = (void *)MAXADDR - HANDLERSTACK;
+	maxheapcc = (void *)MAXADDRCC;
 
 	/* Initialize the memory list as one big block */
 
-	memlist.mnext = (struct memblk *)minheap;
-	memptr = memlist.mnext;
+	memlistcc.mnext = (struct memblkcc *)minheapcc;
+	memptr = memlistcc.mnext;
 
-	memptr->mnext = (struct memblk *)NULL;
-	memlist.mlength = memptr->mlength =
-		(uint32)maxheap - (uint32)minheap;
+	memptr->mnext = (struct memblkcc *)NULL;
+	memlistcc.mlength = memptr->mlength =
+		(uint32)maxheapcc - (uint32)minheapcc;
 }
 
-
-
-/*------------------------------------------------------------------------
- *  freemem  -  Free a memory block, returning the block to the free list
- *------------------------------------------------------------------------
- */
-syscall	freemem(
+ 
+syscall	freememcc(
 	  char		*blkaddr,	/* Pointer to memory block	*/
 	  uint32	nbytes		/* Size of block in bytes	*/
 	)
 {
 	intmask	mask;			/* Saved interrupt mask		*/
-	struct	memblk	*next, *prev, *block;
+	struct	memblkcc	*next, *prev, *block;
 	uint32	top;
 
 	mask = disable();
-	if ((nbytes == 0) || ((uint32) blkaddr < (uint32) minheap)
-			  || ((uint32) blkaddr > (uint32) maxheap)) {
+	if ((nbytes == 0) || ((uint32) blkaddr < (uint32) minheapcc)
+			  || ((uint32) blkaddr > (uint32) maxheapcc)) {
 		restore(mask);
 		return SYSERR;
 	}
 
-	nbytes = (uint32) roundmb(nbytes);	/* Use memblk multiples	*/
-	block = (struct memblk *)blkaddr;
+	nbytes = (uint32) roundmb(nbytes);	/* Use memblkcc multiples	*/
+	block = (struct memblkcc *)blkaddr;
 
-	prev = &memlist;			/* Walk along free list	*/
-	next = memlist.mnext;
+	prev = &memlistcc;			/* Walk along free list	*/
+	next = memlistcc.mnext;
 	while ((next != NULL) && (next < block)) {
 		prev = next;
 		next = next->mnext;
 	}
 
-	if (prev == &memlist) {		/* Compute top of previous block*/
+	if (prev == &memlistcc) {		/* Compute top of previous block*/
 		top = (uint32) NULL;
 	} else {
 		top = (uint32) prev + prev->mlength;
@@ -70,13 +62,13 @@ syscall	freemem(
 
 	/* Ensure new block does not overlap previous or next blocks	*/
 
-	if (((prev != &memlist) && (uint32) block < top)
+	if (((prev != &memlistcc) && (uint32) block < top)
 	    || ((next != NULL)	&& (uint32) block+nbytes>(uint32)next)) {
 		restore(mask);
 		return SYSERR;
 	}
 
-	memlist.mlength += nbytes;
+	memlistcc.mlength += nbytes;
 
 	/* Either coalesce with previous block or add to free list */
 
@@ -99,16 +91,13 @@ syscall	freemem(
 	return OK;
 }
 
-/*------------------------------------------------------------------------
- *  getmem  -  Allocate heap storage, returning lowest word address
- *------------------------------------------------------------------------
- */
-char  	*getmem(
+ 
+char  	*getmemcc(
 	  uint32	nbytes		/* Size of memory requested	*/
 	)
 {
 	intmask	mask;			/* Saved interrupt mask		*/
-	struct	memblk	*prev, *curr, *leftover;
+	struct	memblkcc	*prev, *curr, *leftover;
 
 	mask = disable();
 	if (nbytes == 0) {
@@ -116,25 +105,25 @@ char  	*getmem(
 		return (char *)SYSERR;
 	}
 
-	nbytes = (uint32) roundmb(nbytes);	/* Use memblk multiples	*/
+	nbytes = (uint32) roundmb(nbytes);	/* Use memblkcc multiples	*/
 
-	prev = &memlist;
-	curr = memlist.mnext;
+	prev = &memlistcc;
+	curr = memlistcc.mnext;
 	while (curr != NULL) {			/* Search free list	*/
 
 		if (curr->mlength == nbytes) {	/* Block is exact match	*/
 			prev->mnext = curr->mnext;
-			memlist.mlength -= nbytes;
+			memlistcc.mlength -= nbytes;
 			restore(mask);
 			return (char *)(curr);
 
 		} else if (curr->mlength > nbytes) { /* Split big block	*/
-			leftover = (struct memblk *)((uint32) curr +
+			leftover = (struct memblkcc *)((uint32) curr +
 					nbytes);
 			prev->mnext = leftover;
 			leftover->mnext = curr->mnext;
 			leftover->mlength = curr->mlength - nbytes;
-			memlist.mlength -= nbytes;
+			memlistcc.mlength -= nbytes;
 			restore(mask);
 			return (char *)(curr);
 		} else {			/* Move to next block	*/
@@ -146,17 +135,14 @@ char  	*getmem(
 	return (char *)SYSERR;
 }
 
-/*------------------------------------------------------------------------
- *  getstk  -  Allocate stack memory, returning highest word address
- *------------------------------------------------------------------------
- */
-char  	*getstk(
+ 
+char  	*getstkcc(
 	  uint32	nbytes		/* Size of memory requested	*/
 	)
 {
 	intmask	mask;			/* Saved interrupt mask		*/
-	struct	memblk	*prev, *curr;	/* Walk through memory list	*/
-	struct	memblk	*fits, *fitsprev; /* Record block that fits	*/
+	struct	memblkcc	*prev, *curr;	/* Walk through memory list	*/
+	struct	memblkcc	*fits, *fitsprev; /* Record block that fits	*/
 
 	mask = disable();
 	if (nbytes == 0) {
@@ -166,8 +152,8 @@ char  	*getstk(
 
 	nbytes = (uint32) roundmb(nbytes);	/* Use mblock multiples	*/
 
-	prev = &memlist;
-	curr = memlist.mnext;
+	prev = &memlistcc;
+	curr = memlistcc.mnext;
 	fits = NULL;
 	fitsprev = NULL;  /* Just to avoid a compiler warning */
 
@@ -188,18 +174,18 @@ char  	*getstk(
 		fitsprev->mnext = fits->mnext;
 	} else {				/* Remove top section	*/
 		fits->mlength -= nbytes;
-		fits = (struct memblk *)((uint32)fits + fits->mlength);
+		fits = (struct memblkcc *)((uint32)fits + fits->mlength);
 	}
-	memlist.mlength -= nbytes;
+	memlistcc.mlength -= nbytes;
 	restore(mask);
 	return (char *)((uint32) fits + nbytes - sizeof(uint32));
 }
 
-uint32 heap_free(){
-  struct  memblk  *memptr;  /* Ptr to memory block    */
+uint32 heap_freecc(){
+  struct  memblkcc  *memptr;  /* Ptr to memory block    */
   uint32  free_mem;   /* Total amount of free memory  */
   free_mem = 0;
-  for (memptr = memlist.mnext; memptr != NULL; memptr = memptr->mnext) {
+  for (memptr = memlistcc.mnext; memptr != NULL; memptr = memptr->mnext) {
        free_mem += memptr->mlength;
   }
   return free_mem;

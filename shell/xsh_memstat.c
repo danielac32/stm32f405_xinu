@@ -47,7 +47,7 @@ shellcmd xsh_memstat(int nargs, char *args[])
 		free_mem += memptr->mlength;
 	}*/
 	kprintf(" bytes of free memory.  Free list: %10d\n", heap_free());
-
+    kprintf(" bytes of free memory.  Free list2: %10d\n", heap_freecc());
 
 	
 	//printMemUse();
