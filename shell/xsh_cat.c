@@ -29,7 +29,7 @@ shellcmd xsh_cat(int nargs, char *args[])
     if(nargs <2)return -1;
 
     if (!strcmp(args[nargs-2],">")){
-    	char *tmp=full_path((char*)args[nargs-1]);
+    	char *tmp=full_path((char*)args[1]);
     	if (tmp==NULL)return -1;
 
     	fd = fopen(tmp, "w");
@@ -43,7 +43,7 @@ shellcmd xsh_cat(int nargs, char *args[])
             fputs(" ",fd);
         }
     }else{
- 		char *tmp=full_path((char*)args[nargs-1]);
+ 		char *tmp=full_path((char*)args[1]);
  		if (tmp==NULL)return -1;
 	    if (!(fd = fopen(tmp,"r"))){
             printf("%s not found\n", tmp);

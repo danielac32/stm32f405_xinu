@@ -34,6 +34,7 @@ void default_handler()
 // TODO(lvd): reset usart0 and report unexpected irq
 void default_IRQ_Handler(void) {
     default_handler();
+    NVIC_SystemReset();
     for (;;) {
             __WFE();
     }
