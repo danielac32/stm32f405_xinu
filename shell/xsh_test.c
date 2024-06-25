@@ -4,6 +4,7 @@
 #include <fat_filelib.h>
 #include "tinyscript.h"
 #include "tinyscript_lib.h"
+<<<<<<< HEAD
 #include <assert.h>
 
 #include <compiler.h>
@@ -181,6 +182,11 @@ runscript(const char *filename)
     free(elfData);
 }
 #endif
+=======
+#define ARENA_SIZE 4096*3
+ 
+extern int runts(char *);
+>>>>>>> 71a2bef71a5233a7a82702e8c8723eb8e0ce1604
 
 shellcmd xsh_test(int nargs, char *args[])
 {
@@ -203,6 +209,7 @@ shellcmd xsh_test(int nargs, char *args[])
     cc_free(test);
     printf(" free \n");
     kprintf("Free : %10d\n", heap_freecc());*/
+<<<<<<< HEAD
     
     /*int err;
     int i;
@@ -225,4 +232,11 @@ shellcmd xsh_test(int nargs, char *args[])
     if (tmp==NULL)return -1;
     return run_script(tmp);
     return 0;
+=======
+
+    char *tmp=full_path((char*)args[1]);
+    if (tmp==NULL)return -1;
+
+    return runts(tmp);
+>>>>>>> 71a2bef71a5233a7a82702e8c8723eb8e0ce1604
 }
