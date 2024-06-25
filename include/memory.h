@@ -2,7 +2,7 @@
 #include <kernel.h>
 #define MAXADDR		0x2001f400		/* 64kB SRAM */
 #define MAXADDRCC		0x10010000		/* 64kB SRAM */
-#define HANDLERSTACK	1024			/* Size reserved for stack in Handler mode */
+#define HANDLERSTACK	4096			/* Size reserved for stack in Handler mode */
 #define	PAGE_SIZE	1024 // TODO: unused?
 
 /*----------------------------------------------------------------------
@@ -31,7 +31,7 @@ extern	void	*maxheap;		/* Highest valid heap address	*/
 
 
 struct	memblkcc	{			/* See roundmb & truncmb	*/
-	struct	memblk	*mnext;		/* Ptr to next free memory blk	*/
+	struct	memblkcc	*mnext;		/* Ptr to next free memory blk	*/
 	uint32	mlength;		/* Size of blk (includes memblk)*/
 	};
 extern	struct	memblkcc	memlistcc;	/* Head of free memory list	*/

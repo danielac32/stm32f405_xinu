@@ -1,3 +1,4 @@
+#if 0
 #ifndef TINYSCRIPT_LIB_H
 #define TINYSCRIPT_LIB_H
 
@@ -41,3 +42,4 @@ ts_list * ts_string_to_list(const char * str);
 ts_list * ts_bytes_to_list(const char * str, int num_bytes);
 
 #endif /* TINYSCRIPT_LIB_H */
+#endif

@@ -8,7 +8,7 @@
 #define MATH_H_INCLUDED
 
 #include <stdint.h>
-#include <compiler.h>
+#include <compilergcc.h>
 
 uint32_t pow(uint32_t base, uint32_t exp);
 

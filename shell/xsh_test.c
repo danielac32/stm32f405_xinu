@@ -4,6 +4,85 @@
 #include <fat_filelib.h>
 #include "tinyscript.h"
 #include "tinyscript_lib.h"
+#include <assert.h>
+
+#include <compiler.h>
+#include <object.h>
+#include <vm.h>
+
+#define VERSION_MAJOR 0
+#define VERSION_MINOR 0
+#define VERSION_PATCH 1
+#define BUFSIZ 10000
+extern void exit(void);
+static 
+char *read_file(const char *filename);
+
+
+int run_script(const char *filename) {
+    char *input = read_file(filename);
+    struct lexer lexer = new_lexer(input);
+    struct parser parser = new_parser(&lexer);
+    struct program *program = parse_program(&parser);
+
+    if (parser.errors > 0) {
+        for (int8_t i = 0; i < parser.errors; i++) {
+            printf(">%s\n",parser.error_messages[i]);
+        }
+
+        exit();
+    }
+
+
+    struct compiler *compiler = compiler_new();
+    int err = compile_program(compiler, program);
+    if (err) {
+        printf(">%s\n",compiler_error_str(err));
+        return -1;
+    }
+
+    struct bytecode *code = get_bytecode(compiler);
+    struct vm *machine = vm_new(code);
+    err = vm_run(machine);
+    if (err) {
+        printf("Error executing bytecode: %d\n", err);
+        return -1;
+    }
+
+    free_program(program);
+    compiler_free(compiler);
+    free(code);
+    vm_free(machine);
+    free(input);
+    return -1;
+}
+
+char *read_file(const char *filename) {
+    FILE *fd = fopen(filename, "r");
+    int r;
+    if (!fd) {
+        printf("not found %s\n",filename);
+        return NULL;
+    }
+    // Get file size
+    fseek(fd, 0, SEEK_END);
+    unsigned int fileLength = ftell(fd);
+    fseek(fd, 0, SEEK_SET);
+
+    // Read entire file
+    char *elfData = malloc(fileLength);
+    if (fread((uint8 *)elfData, fileLength,1,fd) != fileLength) {
+        fclose(fd);
+        free(elfData);
+        return NULL;
+    }
+    return elfData;
+}
+
+
+
+#if 0
+
 #define ARENA_SIZE 4096
 FILE* fd;
 char memarena[ARENA_SIZE];
@@ -101,7 +180,7 @@ runscript(const char *filename)
     }
     free(elfData);
 }
-
+#endif
 
 shellcmd xsh_test(int nargs, char *args[])
 {
@@ -124,7 +203,8 @@ shellcmd xsh_test(int nargs, char *args[])
     cc_free(test);
     printf(" free \n");
     kprintf("Free : %10d\n", heap_freecc());*/
-    int err;
+    
+    /*int err;
     int i;
     
     err = TinyScript_Init(memarena, sizeof(memarena));
@@ -139,7 +219,10 @@ shellcmd xsh_test(int nargs, char *args[])
     }
     char *tmp=full_path((char*)args[1]);
     if (tmp==NULL)return -1;
-    runscript(tmp);
-    
+    runscript(tmp);*/
+
+    char *tmp=full_path((char*)args[1]);
+    if (tmp==NULL)return -1;
+    return run_script(tmp);
     return 0;
 }

@@ -1,3 +1,5 @@
+
+#if 0
 #ifndef TINYSCRIPT_H
 #define TINYSCRIPT_H
 
@@ -123,4 +125,5 @@ extern void outchar(int c);
 extern int TinyScript_Stop();
 #endif
 
+#endif
 #endif

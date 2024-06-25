@@ -25,7 +25,7 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  * +--------------------------------------------------------------------
  */
-
+#if 0
 //
 // a very tiny scripting language
 //
@@ -1379,3 +1379,4 @@ TinyScript_Run(const char *buf, int saveStrings, int topLevel)
 #endif
     return ParseString(Cstring(buf), saveStrings, topLevel);
 }
+#endif

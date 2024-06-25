@@ -15,7 +15,7 @@ fixpath = $(strip $1)
  
 CFLAGS      ?= -mcpu=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -ffreestanding -nostdlib -nostartfiles  -fno-builtin
 LDFLAGS      = -ffreestanding -nostdlib -nostartfiles  -fno-builtin -I include  
-INCLUDES     =   -I include -I stm32lib -I gpio/Inc -I sd-spi/Inc -I fat32/Inc -I spi/Inc -I w25q/Inc 
+INCLUDES     =   -I include -I stm32lib -I gpio/Inc -I sd-spi/Inc -I fat32/Inc -I spi/Inc -I w25q/Inc  -I monkey/inc 
 CFLAGS2     ?= $(CFLAGS) -mthumb $(OPTFLAGS)
 LDSCRIPT     =  ld.script
 
@@ -33,8 +33,8 @@ DEVICEOBJ         = $(addprefix $(OBJDIR)/, $(addsuffix .o, $(notdir $(basename 
 SRCGPIO         = $(wildcard gpio/Src/*.c)
 GPIOOBJ         = $(addprefix $(OBJDIR)/, $(addsuffix .o, $(notdir $(basename $(SRCGPIO)))))
 
-SRCUSB         = #$(wildcard usb/Src/*.c) $(wildcard usb/msc/*.c) $(wildcard usb/cdc/*.c)
-USBOBJ         = #$(addprefix $(OBJDIR)/, $(addsuffix .o, $(notdir $(basename $(SRCUSB)))))
+SRCMONKEY         = $(wildcard monkey/src/*.c)
+MONKEYOBJ         = $(addprefix $(OBJDIR)/, $(addsuffix .o, $(notdir $(basename $(SRCMONKEY)))))
 
 SRCSDSPI         = $(wildcard sd-spi/Src/*.c)
 SDSPIOBJ         = $(addprefix $(OBJDIR)/, $(addsuffix .o, $(notdir $(basename $(SRCSDSPI)))))
@@ -55,7 +55,7 @@ FAT32OBJ         = $(addprefix $(OBJDIR)/, $(addsuffix .o, $(notdir $(basename $
 DOUT         = kernel
 
 
-SRCPATH = $(sort $(dir $(SOURCES) $(SRCLIB) $(SRCSHELL) $(SRCDEVICE) $(SRCSPI) $(SRCFAT32) $(SRCW25Q) $(SRCGPIO) $(SRCSDSPI) $(SRCUSB) ))
+SRCPATH = $(sort $(dir $(SOURCES) $(SRCLIB) $(SRCSHELL) $(SRCMONKEY) $(SRCDEVICE) $(SRCSPI) $(SRCFAT32) $(SRCW25Q) $(SRCGPIO) $(SRCSDSPI) $(SRCUSB) ))
 vpath %.c $(SRCPATH)
 vpath %.S $(SRCPATH)
 
@@ -83,9 +83,9 @@ $(DOUT).bin : $(DOUT).elf
 
 
 
-$(DOUT).elf : $(OBJDIR) $(LIBOBJ) $(SHELLOBJ) $(OBJECTS) $(DEVICEOBJ) $(GPIOOBJ) $(USBOBJ) $(SPIOBJ) $(FAT32OBJ) $(W25QOBJ) $(SDSPIOBJ)
+$(DOUT).elf : $(OBJDIR) $(LIBOBJ) $(SHELLOBJ) $(OBJECTS) $(DEVICEOBJ) $(GPIOOBJ) $(USBOBJ) $(SPIOBJ) $(FAT32OBJ) $(MONKEYOBJ) $(W25QOBJ) $(SDSPIOBJ)
 	@echo building $@
-	@$(LD) $(CFLAGS2) $(LDFLAGS) -Wl,--script='$(LDSCRIPT)' $(LIBOBJ) $(SHELLOBJ) $(DEVICEOBJ) $(OBJECTS) $(GPIOOBJ) $(USBOBJ) $(SDSPIOBJ) $(SPIOBJ) $(FAT32OBJ) $(W25QOBJ)  -o $@
+	@$(LD) $(CFLAGS2) $(LDFLAGS) -Wl,--script='$(LDSCRIPT)' $(LIBOBJ) $(SHELLOBJ) $(DEVICEOBJ) $(OBJECTS) $(GPIOOBJ) $(USBOBJ) $(SDSPIOBJ) $(MONKEYOBJ) $(SPIOBJ) $(FAT32OBJ) $(W25QOBJ)  -o $@
 
 clean: $(OBJDIR)
 	$(MAKE) --version

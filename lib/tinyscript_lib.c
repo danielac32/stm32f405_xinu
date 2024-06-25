@@ -1,3 +1,4 @@
+#if 0
 /* Tinyscript Library
  *
  * Copyright 2020 Daniel Landau
@@ -205,3 +206,4 @@ int ts_define_funcs() {
   err |= TinyScript_Define("free", CFUNC(1), (Val)ts_free);
   return err;
 }
+#endif
