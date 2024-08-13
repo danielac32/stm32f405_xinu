@@ -135,8 +135,8 @@ void sys_mfree(void *p){
      __syscall(XINU_FREE,p);
 }
 
-void sys_putc(int des,char c){
-    __syscall(XINU_PUTC,des,c);
+int sys_putc(int des,char c){
+    return __syscall(XINU_PUTC,des,c);
 }
 void sys_puts(int des,char *s,int len){
     __syscall(XINU_PUTS,des,s,len);

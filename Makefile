@@ -15,7 +15,7 @@ fixpath = $(strip $1)
  
 CFLAGS      ?= -mcpu=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -ffreestanding -nostdlib -nostartfiles  -fno-builtin
 LDFLAGS      = -ffreestanding -nostdlib -nostartfiles  -fno-builtin -I include  
-INCLUDES     =   -I include -I stm32lib -I gpio/Inc -I sd-spi/Inc -I fat32/Inc -I spi/Inc -I w25q/Inc  -I monkey/inc 
+INCLUDES     =   -I include -I stm32lib -I gpio/Inc -I sd-spi/Inc -I fat32/Inc -I spi/Inc -I w25q/Inc 
 CFLAGS2     ?= $(CFLAGS) -mthumb $(OPTFLAGS)
 LDSCRIPT     =  ld.script
 
@@ -33,8 +33,8 @@ DEVICEOBJ         = $(addprefix $(OBJDIR)/, $(addsuffix .o, $(notdir $(basename 
 SRCGPIO         = $(wildcard gpio/Src/*.c)
 GPIOOBJ         = $(addprefix $(OBJDIR)/, $(addsuffix .o, $(notdir $(basename $(SRCGPIO)))))
 
-SRCMONKEY         = $(wildcard monkey/src/*.c)
-MONKEYOBJ         = $(addprefix $(OBJDIR)/, $(addsuffix .o, $(notdir $(basename $(SRCMONKEY)))))
+SRCMONKEY         = #$(wildcard monkey/src/*.c)
+MONKEYOBJ         = #$(addprefix $(OBJDIR)/, $(addsuffix .o, $(notdir $(basename $(SRCMONKEY)))))
 
 SRCSDSPI         = $(wildcard sd-spi/Src/*.c)
 SDSPIOBJ         = $(addprefix $(OBJDIR)/, $(addsuffix .o, $(notdir $(basename $(SRCSDSPI)))))
@@ -101,6 +101,14 @@ $(OBJDIR)/%.o: %.c
 	@echo compiling $<
 	@$(CC) $(CFLAGS2)  $(INCLUDES) -c $< -o $@
 
+
+
+
+test:
+	clear
+	arm-none-eabi-gcc -O0 -c -o app/test/entry.o -mcpu=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -mthumb -fno-builtin app/lib/entry.s -fPIE -pie -static
+	arm-none-eabi-gcc -O0 -c -o app/test/main.o -mcpu=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -mthumb -fno-builtin  app/test/main.c -fPIE -pie -static
+	arm-none-eabi-ld app/test/entry.o app/test/main.o -T app/app_base.ld  -o app/test/test.elf 
 
 
 blink:

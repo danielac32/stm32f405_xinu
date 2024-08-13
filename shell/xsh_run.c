@@ -26,8 +26,8 @@ shellcmd xsh_run(int nargs, char *args[])
         struct	procent *prptr;
         prptr = &proctab[child];
         prptr->elf = TRUE;
-        prptr->img = (void *)ximg.start;
-        //prptr->size = ximg->size;
+        prptr->img = ximg.base;
+        prptr->size = ximg.size;
         //free(prptr->img);
         //resume(child);
 
@@ -37,7 +37,8 @@ shellcmd xsh_run(int nargs, char *args[])
     }
     
     update_path();
-    resume(child);
+    printf("pid: %d\n", child);
+    ready(child);
 
   
 	 

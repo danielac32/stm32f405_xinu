@@ -7,10 +7,11 @@ typedef struct {
 
 typedef struct {
     void *start;
+    uint32 *base;
     void *end;
     void *entry;
-    uint32_t offset;
-    uint32_t size;
+    uint32 offset;
+    uint32 size;
 } exec_img;
 
 #define E_NOT_ELF_X       1

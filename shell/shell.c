@@ -63,7 +63,7 @@ const	struct	cmdent	cmdtab[] = {
 	{"touch",   TRUE,   xsh_touch},
 	{"run",     FALSE,  xsh_run},
     {"format",  FALSE,  xsh_format},
-	{"test",    FALSE,  xsh_test},
+	//{"test",    FALSE,  xsh_test},
 
 };
 

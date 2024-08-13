@@ -12,6 +12,13 @@ local	int newpid();
  */
 
 
+typedef struct {
+    uint32 args[8]; // r0-r7 or the arguments for the function
+    uint32 lr;      // Link register
+    uint32 pc;      // Program counter
+    uint32 xpsr;    // Program status register
+    uint32 r4_r11[8]; // r4-r11
+} stack_frame_t;
 
 
 pid32	create(
@@ -29,7 +36,7 @@ pid32	create(
 	int32		i;
 	uint32		*a;		/* points to list of args	*/
 	uint32		*saddr;		/* stack address		*/
-
+   va_list ap;
 	mask = disable();
 	if (ssize < MINSTK)
 		ssize = MINSTK;
@@ -50,7 +57,7 @@ pid32	create(
 	/* initialize process table entry for new process */
 	prptr->prstate = PR_SUSP;	/* initial state is suspended	*/
 	prptr->prprio = priority;
-	prptr->prstkbase = (char *)saddr;
+	prptr->prstkbase = (void *)saddr;
 	prptr->prstklen = ssize;
 	prptr->prname[PNMLEN-1] = NULLCH;
 	for (i=0 ; i<PNMLEN-1 && (prptr->prname[i]=name[i])!=NULLCH; i++)
@@ -64,28 +71,26 @@ pid32	create(
 	prptr->prdesc[1] = CONSOLE;	/* stdout is CONSOLE device	*/
 	prptr->prdesc[2] = CONSOLE;	/* stderr is CONSOLE device	*/
 
+#if 0
 
-	uint32 * tmpstk;
-	uint32 * extraregs;
-	a = (uint32 *)(&nargs + 1);
-	tmpstk = ((uint32) saddr) - 0x1C;
-	extraregs = ((uint32) tmpstk) - 0x20; /* r4 - r11 */
 
-	for (int i = 0; i < nargs; i++) {
-		tmpstk[i] = (uint32) *a++;
-	}
+	stack_frame_t *stack_frame = (stack_frame_t *)((uint32)saddr - sizeof(stack_frame_t));
+    va_start(ap, nargs);
+    for (int i = 0; i < nargs; i++) {
+        stack_frame->args[i] = va_arg(ap, uint32);
+    }
+    va_end(ap);
 
-	tmpstk[5] = (uint32) userret;	/* LR */
-	tmpstk[6] = (uint32) procaddr; /* Function */
-	tmpstk[7] = (uint32) 0x01000000; /* Flag register */
+    stack_frame->lr = (uint32)userret; /* LR */
+    stack_frame->pc = (uint32)procaddr; /* Function */
+    stack_frame->xpsr = 0x01000000; /* Flag register */
+    for (int i = 0; i <= 7; i++) {
+        stack_frame->r4_r11[i] = 0x0; /* Initialize to zero */
+    }
 
-	
-	for (int i = 0; i <= 7; i++) {
-		extraregs[i] = 0x0; /* Initialize to zero */
-	}
-	prptr->prstkptr = extraregs;
+    prptr->prstkptr = stack_frame;
    
-	#if 0
+	#else
 	uint32 * tmpstk;
 	uint32 * extraregs;
 	a = (uint32 *)(&nargs + 1);
@@ -223,9 +228,11 @@ syscall	kill(
 	freestk(prptr->prstkbase, prptr->prstklen);
 	//free(prptr->prstkbase);
     if(prptr->elf == TRUE){
+
     	//kprintf("clean space %d\n",prptr->prstklen);
         free(prptr->img);
-        //freemem(prptr->img,prptr->size);
+        kprintf("offset: %08x\n",prptr->img);
+        //freemem((char *)prptr->img,prptr->size);
     }
 	/*if(riscv1[pid].running){// si hay un vm activa
 	   riscv1[pid].running=0;

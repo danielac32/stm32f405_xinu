@@ -6,6 +6,10 @@
 #include <stdlib.h>
 
 
+//extern  syscall freemem(char *, uint32);
+//extern  char    *getmem(uint32);
+
+
 
 ELF32_shdr *elf_find_section(ELF32_hdr *ehdr, const char *name)
 {
@@ -31,10 +35,10 @@ uint32 elf_execve(const char *file, exec_img *res)
 {
     // Open the given file
     FILE* fd;
-    uint32 q = disable();
+    //uint32 q = disable();
     if (!(fd = fopen(file,"r"))){
         kprintf("not found %s\n",file);
-        restore(q);
+      //  restore(q);
         return -1;
     }
 
@@ -45,10 +49,11 @@ uint32 elf_execve(const char *file, exec_img *res)
 
     // Read entire file
     char *elfData = malloc(fileLength);
+    //char *elfData = getmem(fileLength);
     if (fread((uint8 *)elfData, fileLength,1,fd) != fileLength) {
         fclose(fd);
         free(elfData);
-        restore(q);
+        //restore(q);
         return -2;
     }
 
@@ -58,7 +63,7 @@ uint32 elf_execve(const char *file, exec_img *res)
         elfData[3] != 'F') {
         fclose(fd);
         free(elfData);
-        restore(q);
+        //restore(q);
         return -3;
     }
 
@@ -75,8 +80,12 @@ uint32 elf_execve(const char *file, exec_img *res)
             // There should only be one PT_LOAD section...
             if (ELF_OFFSET != 0)
                 while (1);
-            ELF_OFFSET = (uint32)malloc(phdr->p_memsz + 8) & ~7;
-            res->start = (void*)ELF_OFFSET; 
+            //ELF_OFFSET = (uint32)getmem(phdr->p_memsz + 8) & ~7;
+            ELF_OFFSET = (uint32)malloc(phdr->p_memsz + 8);
+             
+            //kprintf("size bin: %d offset: %08x\n",phdr->p_memsz + 8,ELF_OFFSET);
+            res->base = (uint32*)ELF_OFFSET; 
+            res->size = phdr->p_memsz + 8;
 
             // Copy the program data into RAM for execution
             uint8 *src = (uint8 *)elfData + phdr->p_offset;
@@ -87,6 +96,9 @@ uint32 elf_execve(const char *file, exec_img *res)
 
         phdr = (Elf32_Phdr *)((char *)phdr + ehdr->e_phentsize);
     }
+    //res->base = (uint32*)ELF_OFFSET; 
+    //res->size = phdr->p_memsz + 8;
+    //kprintf("offset: %08x\n",ELF_OFFSET);
 
     // Zero the .bss section
     ELF32_shdr *bssSection = elf_find_section(ehdr, ".bss");
@@ -121,9 +133,11 @@ uint32 elf_execve(const char *file, exec_img *res)
 
     fclose(fd);
     free(elfData);
+    //freemem((char *)elfData,fileLength);
+    
     // Return entry point
     //es->entry = (void*)((to_addr + hdr->e_entry) | 0x1);
-    restore(q);
+    //restore(q);
     return (ELF_OFFSET + ehdr->e_entry) | 0x1 ;
 
     //return 0;

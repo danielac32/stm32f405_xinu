@@ -90,7 +90,7 @@ struct procent {		/* Entry in the process table		*/
 	bool8	prhasmsg;	/* Nonzero iff msg is valid		*/
 	int16	prdesc[NDESC];	/* Device descriptors for process	*/
   bool8 	elf;
-  void *img;
+  uint32 *img;
   uint32 size;
   //char parg[5][16];//
   void *parg[MAX_ARG]; 

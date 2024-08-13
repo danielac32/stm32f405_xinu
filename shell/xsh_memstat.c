@@ -51,7 +51,7 @@ shellcmd xsh_memstat(int nargs, char *args[])
 
 	
 	//printMemUse();
-	//printFreeList();
+	printFreeList();
 
 	return 0;
 }
