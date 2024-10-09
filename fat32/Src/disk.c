@@ -25,7 +25,7 @@ int sd_init(void)
 
     //flash_info_t *flash_info;
     //flash_info = w25qxxx_drv.getcardinfo();
-    return control(FLASHSPI,0,0,0);//flash_info->card_size;
+    //return control(FLASHSPI,0,0,0);//flash_info->card_size;
 }
 //-----------------------------------------------------------------
 // sd_readsector: Read a number of blocks from SD card

@@ -661,7 +661,7 @@ status	ready(
  *  exit  -  Cause the calling process to exit
  *------------------------------------------------------------------------
  */
-void	exit(void)
+void	exit(int c)
 {
 	kill(getpid());		/* Kill the current process */
 }

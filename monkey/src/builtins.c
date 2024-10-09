@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include "object.h"
 #include "builtins.h"
-#include <fat_filelib.h>
+ 
 #define MAKE_BUILTIN(fn) ((struct object) {                     \
     .type = OBJ_BUILTIN,                                        \
     .value = { .ptr = (struct heap_object *) &fn }    \
@@ -88,8 +88,8 @@ builtin_len(const struct object_list* args) {
 
 static struct object 
 builtin_puts(const struct object_list* args) {
-    //char str[BUFSIZ];
-    char *str=malloc(200);
+    //char str[100];
+    char *str=malloc(1000);
     for (uint32_t i=0; i < args->size; i++) {
         *str = '\0';
         object_to_str(str, args->values[i]);
@@ -236,7 +236,7 @@ str_split(const struct object_list *args) {
     struct object_list *list = make_object_list(2);
 
     //char buf[64];
-    char *buf=malloc(200);
+    char *buf=malloc(500);
     char *src = str;
     char *dest = buf;
     while (*src != '\0') {

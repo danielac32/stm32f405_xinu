@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <assert.h>
-#include "compiler.h"
+#include "compilermonkey.h"
 #include "object.h"
 #include "opcode.h"
 #include "parser.h"
@@ -11,7 +11,7 @@
 #include "vm.h"
 #include "builtins.h"
 
-extern void exit();
+extern void exit(int);
 enum {
     COMPILE_SUCCESS = 0,
     COMPILE_ERR_UNKNOWN_OPERATOR,
@@ -583,7 +583,10 @@ compile_expression(struct compiler *c, const struct expression *expr) {
                         compiler_emit(c, OPCODE_GET_LOCAL, s->index);
                     break;
                     default:
-                        exit();
+                        //exit();
+                        printf("emit error, can not redefine built-ins\n");
+                        exit(0);
+                        while(1);
                         // TODO: emit error, can not redefine built-ins
                     break;
                 }

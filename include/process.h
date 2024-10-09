@@ -93,7 +93,7 @@ struct procent {		/* Entry in the process table		*/
   uint32 *img;
   uint32 size;
   //char parg[5][16];//
-  void *parg[MAX_ARG]; 
+  //void *parg[MAX_ARG]; 
 };
 
 /* Marker for the top of a process stack (used to help detect overflow)	*/

@@ -32,5 +32,5 @@ int strcspn(const char *, register const char *);
 int strspn (const char *,const char *);
 char *strndup(const char *str, int n);
 char *strdup(const char *str);
-
+char * strpbrk( const char * s1, const char * s2 );
 #endif

@@ -253,3 +253,9 @@ void    bzero(
     }
     while (--n);
 }
+extern void exit(int);
+void abort( void )
+{
+    //raise( SIGABRT );
+    exit( -1 );
+}

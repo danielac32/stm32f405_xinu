@@ -64,7 +64,7 @@ void hal_w25q_spi_init(void)
     SPI1->CR1 = SPI_CR1_SSM | SPI_CR1_SSI | SPI_CR1_SPE | SPI_CLK_DIV | SPI_CR1_MSTR;
 
     hw_set_pin(GPIOx(PORT_CS), PIN_CS, 1);
-    hal_sd_spi_fast();
+    SPI1->CR1 = SPI_CR1_SSM | SPI_CR1_SSI | SPI_CR1_SPE | SPI_TRANSFER_CLK_DIV | SPI_CR1_MSTR;
 }
 
 //--------------------------------------------
@@ -159,7 +159,7 @@ void hal_sd_spi_init(void)
     SPI2->CR1 = SPI_CR1_SSM | SPI_CR1_SSI | SPI_CR1_SPE | SPI_CR1_BR_2 | SPI_CR1_MSTR;
 
     hw_set_pin(GPIOx(PORT_CS2), PIN_CS2, 1);
-    //hal_sd_spi_fast();
+    hal_sd_spi_fast();
 }
 
 //--------------------------------------------
@@ -321,5 +321,66 @@ void hal_st7735_spi_fast(void)
     // BR[2:0]: Baud rate control
     // MSTR = 1: Master configuration
     SPI3->CR1 = SPI_CR1_SSM | SPI_CR1_SSI | SPI_CR1_SPE | SPI_TRANSFER_CLK_DIV | SPI_CR1_MSTR;
+}
+
+
+
+// GPIO_AF6_SPI3(APB1):
+// SPI3 SCK:   PB3    PC10
+// SPI3 MISO:  PB4    PC11
+// SPI3 MOSI:  PB5    PC12
+
+//--------------------------------------------
+#define PORT_SRAM_SCK        GPIO_C   // PB3 --> SPI1_SCK
+#define PIN_SRAM_SCK         10
+#define PORT_SRAM_MISO       GPIO_C   // PB4 <-- SPI1_MISO
+#define PIN_SRAM_MISO        11
+#define PORT_SRAM_MOSI       GPIO_C   // PB5 --> SPI1_MOSI
+#define PIN_SRAM_MOSI        12
+#define PORT_SRAM_CS1         GPIO_C   // PB14 --> F_CS(0)
+#define PIN_SRAM_CS1          7
+#define PORT_SRAM_CS2         GPIO_C   // PB14 --> F_CS(0)
+#define PIN_SRAM_CS2          8
+#define PORT_SRAM_CS3         GPIO_C   // PB14 --> F_CS(0)
+#define PIN_SRAM_CS3          9
+
+void hal_23lc1024_spi_init(void){
+RCC->APB1ENR |= RCC_APB1ENR_SPI3EN;
+RCC->AHB1ENR |= RCC_AHB1ENR_GPIOCEN;
+hw_cfg_pin(GPIOx(PORT_SRAM_SCK),    PIN_SRAM_SCK,    GPIOCFG_MODE_ALT | GPIO_AF6_SPI3 | GPIOCFG_OSPEED_VHIGH | GPIOCFG_OTYPE_PUPD | GPIOCFG_PUPD_PUP);
+hw_cfg_pin(GPIOx(PORT_SRAM_MISO),   PIN_SRAM_MISO,   GPIOCFG_MODE_ALT | GPIO_AF6_SPI3 | GPIOCFG_OSPEED_VHIGH | GPIOCFG_OTYPE_PUPD | GPIOCFG_PUPD_PUP);
+hw_cfg_pin(GPIOx(PORT_SRAM_MOSI),   PIN_SRAM_MOSI,   GPIOCFG_MODE_ALT | GPIO_AF6_SPI3 | GPIOCFG_OSPEED_VHIGH | GPIOCFG_OTYPE_PUPD | GPIOCFG_PUPD_PUP);
+
+hw_cfg_pin(GPIOx(PORT_SRAM_CS1),     PIN_SRAM_CS1,     GPIOCFG_MODE_OUT | GPIOCFG_OSPEED_VHIGH  | GPIOCFG_OTYPE_PUPD | GPIOCFG_PUPD_PUP);
+hw_cfg_pin(GPIOx(PORT_SRAM_CS2),     PIN_SRAM_CS2,     GPIOCFG_MODE_OUT | GPIOCFG_OSPEED_VHIGH  | GPIOCFG_OTYPE_PUPD | GPIOCFG_PUPD_PUP);
+hw_cfg_pin(GPIOx(PORT_SRAM_CS3),     PIN_SRAM_CS3,     GPIOCFG_MODE_OUT | GPIOCFG_OSPEED_VHIGH  | GPIOCFG_OTYPE_PUPD | GPIOCFG_PUPD_PUP);
+
+SPI3->CR1 = SPI_CR1_SSM | SPI_CR1_SSI | SPI_CR1_SPE | SPI_CLK_DIV | SPI_CR1_MSTR;
+
+hw_set_pin(GPIOx(PORT_SRAM_CS1), PIN_SRAM_CS1, 1);
+hw_set_pin(GPIOx(PORT_SRAM_CS2), PIN_SRAM_CS2, 1);
+hw_set_pin(GPIOx(PORT_SRAM_CS3), PIN_SRAM_CS3, 1);
+
+hal_23lc1024_spi_select1_set(1);
+hal_23lc1024_spi_select2_set(1);
+hal_23lc1024_spi_select3_set(1);
+SPI3->CR1 = SPI_CR1_SSM | SPI_CR1_SSI | SPI_CR1_SPE | SPI_TRANSFER_CLK_DIV | SPI_CR1_MSTR;
+}
+
+void hal_23lc1024_spi_select1_set(int s){
+hw_set_pin(GPIOx(PORT_SRAM_CS1), PIN_SRAM_CS1, s);
+}
+void hal_23lc1024_spi_select2_set(int s){
+hw_set_pin(GPIOx(PORT_SRAM_CS2), PIN_SRAM_CS2, s);
+}
+void hal_23lc1024_spi_select3_set(int s){
+hw_set_pin(GPIOx(PORT_SRAM_CS3), PIN_SRAM_CS3, s);
+}
+
+uint8_t hal_23lc1024_spi_txrx(uint8_t data){
+    while (!(SPI3->SR & SPI_SR_TXE));
+    SPI3->DR = data;
+    while (!(SPI3->SR & SPI_SR_RXNE));
+    return SPI3->DR;
 }
 

@@ -35,3 +35,12 @@ void putcharuart(char ch)
 	USART1->DR = ch;
 }
 
+bool uart_available(void) {
+    return (USART1->SR & USART_SR_RXNE) != 0;
+}
+
+// Obtiene un carácter del UART
+char uart_get(void) {
+    while (!uart_available()); // Espera hasta que haya un carácter disponible
+    return USART1->DR; // Lee el dato recibido
+}

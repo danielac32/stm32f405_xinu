@@ -34,6 +34,28 @@ const uint8_t APBPrescTable[8]  = {0, 0, 0, 0, 1, 2, 3, 4};
 #define PLL_P      2
 #define PLL_Q      7
 
+
+static void SetSysClock2(void){
+    RCC->CR |= RCC_CR_HSEON;
+    while (!(RCC->CR & RCC_CR_HSERDY)); // Esperar hasta que HSE esté listo
+
+    // 2. Configurar los parámetros del PLL
+    RCC->PLLCFGR = 0; // Limpiar configuración anterior
+    RCC->PLLCFGR |= (8 << RCC_PLLCFGR_PLLM_Pos);   // PLLM = 8 (8 MHz / 8 = 1 MHz)
+    RCC->PLLCFGR |= (160 << RCC_PLLCFGR_PLLN_Pos); // PLLN = 160 (1 MHz * 160 = 160 MHz)
+    RCC->PLLCFGR |= (0 << RCC_PLLCFGR_PLLP_Pos);   // PLLP = 0 (divide entre 2, 160 MHz)
+    RCC->PLLCFGR |= (4 << RCC_PLLCFGR_PLLQ_Pos);   // PLLQ = 4 (para USB a 40 MHz)
+
+
+    // 3. Habilitar el PLL
+    RCC->CR |= RCC_CR_PLLON;
+    while (!(RCC->CR & RCC_CR_PLLRDY)); // Esperar hasta que el PLL esté listo
+
+    // 4. Seleccionar el PLL como fuente de reloj del sistema
+    RCC->CFGR |= RCC_CFGR_SW_PLL;
+    while ((RCC->CFGR & RCC_CFGR_SWS) != RCC_CFGR_SWS_PLL); // Esperar hasta que el PLL sea la fuente
+
+}
 static void SetSysClock(void)
 {
 
@@ -200,7 +222,7 @@ void set_sysclk_to_168(void)
   while (!(RCC->CFGR & (2U << 2)));
 
   // update SystemCoreClock variable
-  SystemCoreClock = 168000000;
+  SystemCoreClock = 160000000;
 }
 
 static void DWTInit(void)

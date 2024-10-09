@@ -9,9 +9,9 @@
 
 extern void _estack(void); // fake definition, will be filled in by linker script.
 
-
-void default_handler()
-{
+// Hang, let the watchdog reboot us.
+// TODO(lvd): reset usart0 and report unexpected irq
+void default_IRQ_Handler(void) {
     uint32 * current_sp;
 
    asm volatile("\
@@ -26,22 +26,9 @@ void default_handler()
         kprintf("STACK[%d]: %x\n", i, current_sp[i]);
     }
     
- 
 }
 
-
-// Hang, let the watchdog reboot us.
-// TODO(lvd): reset usart0 and report unexpected irq
-void default_IRQ_Handler(void) {
-    default_handler();
-    NVIC_SystemReset();
-    for (;;) {
-            __WFE();
-    }
-}
-
-
-
+// CM4 core fault handlers
 void Reset_Handler(void) __attribute__((weak, alias("default_IRQ_Handler")));
 void NonMaskableInt_Handler(void) __attribute__((weak, alias("default_IRQ_Handler")));
 void Reserved_3_Handler(void) __attribute__((weak, alias("default_IRQ_Handler")));

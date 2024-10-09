@@ -93,39 +93,66 @@ int  initFat32(){
 	      printf("ERROR: Failed to init file system\n");
 	      return -1;
 	}
-    printf("fat32 (%d) %d\n",512,size);
+    //printf("fat32 (%d) %d\n",512,size);
   // List the root directory
-    fl_listdirectory("/");
+    //fl_listdirectory("/");
     return OK;
 }
 
+
+
+
+int start_process(){
+  int32	msg;
+  int pid = create(initFat32, 1024, 50, "fat32", 0);
+  msg = recvclr();
+	resume(pid);
+  msg = receive();
+	while (msg != pid) {
+		msg = receive();
+	}
+	ready(create(shell, 4096, 52, "shell", 1, 0));
+	return 0;
+}
  
 
-void nullprocess(void) {
+int nullprocess(void) {
+
+   syscall_init(&syscallp);
+	 resume(create(start_process, 4096, 50, "shell", 1, 0));
+
+
 	//resume(create(shell, 4096/2, 50, "shell", 1, 0));
 	//printf("nullprocess\n");
 	//putc('D', CONSOLE);
 	//receive();
     //resume(create(blink1, INITSTK, 50, "blink1", 0));
     //resume(create(usbTask, 1024*2, 50, "usbtask", 0));
-  syscall_init(&syscallp);
+ // syscall_init(&syscallp);
   //syscallp.putc(CONSOLE,'a');
   //syscallp.putc(CONSOLE,'b');
-  syscallp.puts(CONSOLE,"syscall init\n",13);
-	resume(create(shell, 2048, 52, "shell", 1, 0));
-	resume(create(initFat32, 1024, 50, "fat32", 0));
+  //syscallp.puts(CONSOLE,"syscall init\n",13);
+
+
+  //int32	msg;
+  //int pid = create(initFat32, 1024, 50, "fat32", 0);
+  //msg = recvclr();
+	//resume(pid);
+  //msg = receive();
+	//while (msg != pid) {
+		//msg = receive();
+	//}
+	//ready(create(shell, 4096*2, 52, "shell", 1, 0));
+	
 	//resume(create(blink, 1024/2, 51, "blink", 0));
     //resume(create(blink1, INITSTK, 50, "blink1", 0));
-	for(;;){
-
-	}
+	 while(1);
+	 return 0;
 }
 
 
- 
-
-
-
+extern bool uart_available(void);
+extern char uart_get();
 void	nulluser()
 {	
 	struct	memblk	*memptr;	/* Ptr to memory block		*/
@@ -137,16 +164,18 @@ void	nulluser()
     meminit();
     meminitcc();
 
-	platinit();
+	  platinit();
     /* Enable interrupts */
-	enable();
+	  enable();
 
 	/* Initialize the system */
    
     while(1){
-        if(!hw_get_pin(GPIOx(GPIO_A),0)){
+
+        if(!hw_get_pin(GPIOx(GPIO_A),0) || uart_available()){
             break;
         }
+        
         hw_toggle_pin(GPIOx(GPIO_A),8);
         delay(50);
     }
@@ -173,16 +202,10 @@ void	nulluser()
 		(uint32)&_ebss - (uint32)&_sdata);
 	kprintf("           [0x%08X to 0x%08X]\n\n",
 		(uint32)&_sdata, (uint32)&_ebss - 1);
+ 
 
-    //cc_malloc_init(KMALLOC_START,KMALLOC_LENGTH);
-   // cc_malloc_debug();
-	//chunklist_init(KMALLOC_LENGTH);
-  //info();
-  //  char *p=do_malloc(1000);
-  //  do_free(p);
-  //  info();
-	/* Initialize the Null process entry */	
-	int pid = create((void *)nullprocess, 256, 10, "Null process", 0, NULL);
+
+	int pid = create((void *)nullprocess, 2048, 10, "Null process", 0, NULL);
 	struct procent * prptr = &proctab[pid];
 	prptr->prstate = PR_CURR;
 

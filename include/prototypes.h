@@ -1,7 +1,7 @@
 
 //#include <stdio.h>
 
-
+extern void	exit(int c);
 
 void	meminit(void);
 

@@ -10,6 +10,7 @@
 #include "lexer.h"
 #include "util.h"
 
+extern void exit(int);
 static struct expression *parse_expression(struct parser *p, const int8_t precedence);
 static int parse_statement(struct parser *p, struct statement *s);
 static void expression_to_str(char *str, const struct expression *expr);
@@ -111,7 +112,8 @@ int advance_to_next_token(struct parser *p, const enum token_type t) {
         return 1;
     }
 
-    err(-1, "Parsing error: expected next token to be %s, got %s instead", token_type_to_str(t), token_type_to_str(p->next_token.type));
+    printf("Parsing error: expected next token to be %s, got %s instead \n", token_type_to_str(t), token_type_to_str(p->next_token.type));
+    exit(0);
     return 1;
 }
 
@@ -119,7 +121,8 @@ static
 struct expression *make_expression(enum expression_type type, struct token tok) {
     struct expression *expr = malloc(sizeof *expr);
     if (!expr) {
-        err(-1, "OUT OF MEMORY");
+        printf("OUT OF MEMORY");
+        exit(0);
     }
 
     expr->type = type;
@@ -173,7 +176,8 @@ struct expression *parse_string_literal(struct parser *p) {
     const uint32_t len = p->current_token.end - p->current_token.start + 1;
     struct expression *expr = (struct expression *) malloc(sizeof(*expr) + len);
     if (!expr) {
-        err(-1, "OUT OF MEMORY");
+        printf("OUT OF MEMORY");
+        exit(0);
     }
 
     expr->type = EXPR_STRING;
@@ -248,7 +252,8 @@ struct expression_list parse_expression_list(struct parser *p, const enum token_
     list.cap = 4;
     list.values = malloc(list.cap * sizeof **list.values);
     if (!list.values) {
-        err(-1, "OUT OF MEMORY");
+        printf("OUT OF MEMORY");
+        exit(0);
     }
     next_token(p);
     list.values[list.size++] = parse_expression(p, LOWEST);
@@ -304,7 +309,8 @@ struct expression *parse_call_expression(struct parser *p, struct expression *le
 static
 struct expression *parse_assignment_expression(struct parser *p, struct expression *left) {
     if (left->type != EXPR_IDENT && left->type != EXPR_INDEX) {
-        err(-1, "Parsing error: invalid assignment left-hand side");
+        printf("Parsing error: invalid assignment left-hand side");
+        exit(0);
     }
 
     struct expression * expr = make_expression(EXPR_ASSIGN, p->current_token); 
@@ -489,7 +495,8 @@ struct identifier_list parse_function_parameters(struct parser *p) {
     params.cap = 4;
     params.values = malloc(sizeof *params.values * params.cap);
     if (!params.values) {
-        err(-1, "OUT OF MEMORY");
+        printf("OUT OF MEMORY");
+        exit(0);
     }
 
     next_token(p);
@@ -568,7 +575,8 @@ struct expression *parse_expression(struct parser *p, const int8_t precedence) {
             left = parse_array_literal(p);
         break;
         default: 
-            err(-1, "Syntax error: unexpected token '%s' at line %d\n", p->current_token.literal, p->lexer->cur_lineno);
+            printf("Syntax error: unexpected token '%s' at line %d\n", p->current_token.literal, p->lexer->cur_lineno);
+            exit(0);
             return NULL;
         break;
     }
@@ -663,11 +671,13 @@ struct program *parse_program(struct parser *parser) {
     const int cap = 4;
     struct program *program = (struct program *) malloc(sizeof *program + cap * sizeof *program->statements);
     if (!program) {
-        err(-1, "OUT OF MEMORY");
+        printf("OUT OF MEMORY");
+        exit(0);
     }
 
     #ifdef DEBUG 
         printf("\n\nProgram: %s\n", parser->lexer->input);
+
     #endif
 
     program->size = 0;
@@ -870,7 +880,8 @@ void expression_to_str(char *str, const struct expression *expr) {
 char *program_to_str(const struct program *p) {
     char *str =malloc(1000); //malloc(BUFSIZ);
     if (!str) {
-        err(-1, "OUT OF MEMORY");
+        printf("OUT OF MEMORY");
+        exit(0);
     }
     *str = '\0';
 

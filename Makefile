@@ -13,9 +13,9 @@ RM = rm -f
 fixpath = $(strip $1)
 
  
-CFLAGS      ?= -mcpu=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -ffreestanding -nostdlib -nostartfiles  -fno-builtin
-LDFLAGS      = -ffreestanding -nostdlib -nostartfiles  -fno-builtin -I include  
-INCLUDES     =   -I include -I stm32lib -I gpio/Inc -I sd-spi/Inc -I fat32/Inc -I spi/Inc -I w25q/Inc 
+CFLAGS      ?= -mcpu=cortex-m4 -lc -mfloat-abi=hard -mfpu=fpv4-sp-d16 -ffreestanding -nostartfiles  -fno-builtin
+LDFLAGS      = -ffreestanding  -nostartfiles  -fno-builtin $(INCLUDES)
+INCLUDES     =  -I include -I stm32lib -I gpio/Inc -I sd-spi/Inc -I fat32/Inc -I spi/Inc -I w25q/Inc -I 23lc1024/inc  -I riscv #-I pepper-lang#-I monkey/inc
 CFLAGS2     ?= $(CFLAGS) -mthumb $(OPTFLAGS)
 LDSCRIPT     =  ld.script
 
@@ -29,26 +29,18 @@ SRCSHELL         = $(wildcard shell/*.c)
 SHELLOBJ         = $(addprefix $(OBJDIR)/, $(addsuffix .o, $(notdir $(basename $(SRCSHELL)))))
 SRCDEVICE         = $(wildcard device/nam/*.c) $(wildcard device/tty/*.c) $(wildcard device/led/*.c) $(wildcard device/flash/*.c)
 DEVICEOBJ         = $(addprefix $(OBJDIR)/, $(addsuffix .o, $(notdir $(basename $(SRCDEVICE)))))
-
 SRCGPIO         = $(wildcard gpio/Src/*.c)
 GPIOOBJ         = $(addprefix $(OBJDIR)/, $(addsuffix .o, $(notdir $(basename $(SRCGPIO)))))
-
-SRCMONKEY         = #$(wildcard monkey/src/*.c)
-MONKEYOBJ         = #$(addprefix $(OBJDIR)/, $(addsuffix .o, $(notdir $(basename $(SRCMONKEY)))))
-
 SRCSDSPI         = $(wildcard sd-spi/Src/*.c)
 SDSPIOBJ         = $(addprefix $(OBJDIR)/, $(addsuffix .o, $(notdir $(basename $(SRCSDSPI)))))
-
-
 SRCSPI         = $(wildcard spi/Src/*.c)
 SPIOBJ         = $(addprefix $(OBJDIR)/, $(addsuffix .o, $(notdir $(basename $(SRCSPI)))))
-
-
-SRCW25Q         = $(wildcard w25q/Src/*.c)
+SRCW25Q         = $(wildcard w25q/Src/*.c) $(wildcard 23lc1024/src/*.c)
 W25QOBJ         = $(addprefix $(OBJDIR)/, $(addsuffix .o, $(notdir $(basename $(SRCW25Q)))))
-
-SRCFAT32         = $(wildcard fat32/Src/*.c)
+SRCFAT32         = $(wildcard fat32/Src/*.c) $(wildcard riscv/*.c)
 FAT32OBJ         = $(addprefix $(OBJDIR)/, $(addsuffix .o, $(notdir $(basename $(SRCFAT32)))))
+SRCMONKEY         = #$(wildcard pepper-lang/*.c) #$(wildcard monkey/src/*.c)
+MONKEYOBJ         = #$(addprefix $(OBJDIR)/, $(addsuffix .o, $(notdir $(basename $(SRCMONKEY)))))#$(addprefix $(OBJDIR)/, $(addsuffix .o, $(notdir $(basename $(SRCMONKEY)))))
 
 
 
