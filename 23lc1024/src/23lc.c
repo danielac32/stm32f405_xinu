@@ -33,9 +33,9 @@ void SRAM_SPI_READ(uint8_t *buf, uint32_t size) {
 
 static void select_memory(uint8_t memoryIndex) {
     // Poner todos los pines en alto (1)
-    //hal_23lc1024_spi_select1_set(1);
-    //hal_23lc1024_spi_select2_set(1);
-    //hal_23lc1024_spi_select3_set(1);
+    hal_23lc1024_spi_select1_set(1);
+    hal_23lc1024_spi_select2_set(1);
+    hal_23lc1024_spi_select3_set(1);
 
     // Poner en bajo (0) solo el pin de la memoria seleccionada
     switch (memoryIndex) {
@@ -57,16 +57,17 @@ static void release(uint8_t memoryIndex){
 }
 
 static void setMode(uint8_t memoryIndex){
-    select_memory(0);
+    select_memory(memoryIndex);
     hal_23lc1024_spi_txrx(WRMR);
     hal_23lc1024_spi_txrx(Sequential);
-    release(0);
+    release(memoryIndex);
 }
 
 
 
 void sramwrite(uint32_t addr, void *ptr, uint32_t size){
        // uint32_t q = disable();
+   // __disable_irq(); 
         uint8_t cmdAddr[5];
 	    uint8_t *p = (uint8_t *)ptr;
 	    uint8_t memoryIndex = addr / MEMORY_SIZE; // 0, 1 o 2
@@ -86,19 +87,21 @@ void sramwrite(uint32_t addr, void *ptr, uint32_t size){
         SRAM_SPI_WRITE(cmdAddr, 4);
         SRAM_SPI_WRITE(p, writeSize);
         release(memoryIndex);
+        //__enable_irq();   
         //restore(q);
 }
  
 void sramread(uint32_t addr,void *ptr,uint32_t size){
         
         //uint32_t q = disable();
+    //__disable_irq(); 
 	    uint8_t cmdAddr[5];
 	    uint8_t *p = (uint8_t *)ptr;
 	    uint8_t memoryIndex = addr / MEMORY_SIZE; // 0, 1 o 2
         uint32_t memoryAddr = addr % MEMORY_SIZE;
 
         // Asegurarse de no exceder el tamaño de la memoria
-        //uint32_t readSize = (size > (MEMORY_SIZE - memoryAddr)) ? (MEMORY_SIZE - memoryAddr) : size;
+        uint32_t readSize = (size > (MEMORY_SIZE - memoryAddr)) ? (MEMORY_SIZE - memoryAddr) : size;
 
         // Configurar comando y dirección
         cmdAddr[0] = PSRAM_CMD_READ;
@@ -108,8 +111,9 @@ void sramread(uint32_t addr,void *ptr,uint32_t size){
         //setMode(memoryIndex);
         select_memory(memoryIndex);
         SRAM_SPI_WRITE(cmdAddr, 4);
-        SRAM_SPI_READ(p, size);
+        SRAM_SPI_READ(p, readSize);
         release(memoryIndex);
+       // __enable_irq();   
         //restore(q);
 }
 

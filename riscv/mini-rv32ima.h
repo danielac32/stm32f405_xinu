@@ -155,8 +155,7 @@ MINIRV32_DECORATE int32_t MiniRV32IMAStep( struct MiniRV32IMAState * state, uint
 		}
 		else
 		{
-			ir = MINIRV32_LOAD4( ofs_pc );
-			//printf("%x  %x\n",ir,ofs_pc );
+			ir = (uint32_t)MINIRV32_LOAD4( ofs_pc );
 			uint32_t rdid = (ir >> 7) & 0x1f;
 
 			switch( ir & 0x7f )

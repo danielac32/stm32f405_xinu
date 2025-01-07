@@ -83,9 +83,9 @@ restore_context:
 
 
 .thumb_func
-.globl     SVCall_Handler
-.type       SVCall_Handler, %function
-SVCall_Handler:
+.globl     SVC_Handler
+.type       SVC_Handler, %function
+SVC_Handler:
     mrs     r0, psp
 
     push    {lr}

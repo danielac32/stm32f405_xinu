@@ -24,7 +24,7 @@
 
 
 extern	void	ttyhandler(uint32, char c, int tipo);
-void TIM2_Handler()
+void TIM2_IRQHandler()
 {   
 
 		/* Increment 1000ms counter */

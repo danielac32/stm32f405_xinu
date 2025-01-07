@@ -74,12 +74,20 @@ typedef struct w25qxxx_drv4K
 } w25qxxx_drv_t4K;
 extern const w25qxxx_drv_t w25qxxx_drv;
 
+void w25q_load_data( void *d, uint32_t addr, uint32_t size );
+void w25q_read_data( void *buf, uint32_t addr, uint32_t size );
 
-/*
-void cache_write(uint32_t ofs, void *buf, uint32_t size);
-void cache_read(uint32_t ofs, void *buf, uint32_t size);
+
+#if 0
+void cache_read(uint32_t addr, void *ptr, uint8_t size);
+void cache_write(uint32_t addr, void *ptr, uint8_t size);
+void cache_reset();
+
+#else
+void cache_write(uint32_t , void *, uint32_t );
+void cache_read(uint32_t , void *, uint32_t );
 void cache_get_stat(uint64_t *phit, uint64_t *paccessed);
-
+#endif
 
 
 
@@ -88,4 +96,22 @@ extern void cachebegin(uint32_t size);
 extern void cachewrite(uint32_t address,uint8 value);
 extern uint8_t cacheread(uint32_t address);
 extern uint32_t cacheget_size();
-*/
+
+extern uint8_t lowmemRAM[];
+extern uint8_t cacheRAM1[];
+extern uint8_t cacheRAM2[];
+//extern uint8_t cacheRAM3[];
+//extern uint8_t cacheRAM4[];
+
+extern uint32_t block1;
+extern uint32_t block2;
+//extern uint32_t block3;
+//extern uint32_t block4;
+
+extern uint8_t dirty1;
+extern uint8_t dirty2;
+//extern uint8_t dirty3;
+//extern uint8_t dirty4;
+
+extern uint8_t NextCacheUse;
+extern uint32_t max;

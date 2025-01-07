@@ -1,7 +1,9 @@
-//#ifndef _EMULATOR_H
-//#define _EMULATOR_H
+#ifndef _EMULATOR_H
+#define _EMULATOR_H
 
 #include <stdint.h>
+//#include <w25qxxx.h>
+
 
 enum emulatorCode{
     EMU_POWEROFF,
@@ -10,6 +12,12 @@ enum emulatorCode{
 };
 
 int riscv_emu();
-int load_ram_file( uint32_t part,  char *filename );
+int load_sd_file( uint32_t part, const char filename[] );
+extern void SPI_Flash_Read(uint8_t* pBuffer,uint32_t ReadAddr,uint16_t NumByteToRead);
+extern void SPI_Flash_Write(uint8_t* pBuffer,uint32_t WriteAddr,uint16_t NumByteToWrite);
 
-//#endif
+#define base 1*1024*1024
+#define psram_read(addr, buf, len) SPI_Flash_Read(buf,addr+base,len)
+#define psram_write(addr, buf, len) SPI_Flash_Write(buf,addr+base,len)
+
+#endif

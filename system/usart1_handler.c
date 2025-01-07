@@ -3,7 +3,7 @@
 #include <gpio.h>
 
 
-void USART1_Handler(){
+void USART1_IRQHandler(){
 uint32 q = disable();
 ttyhandler(1,USART1->DR,0);
 restore(q);
