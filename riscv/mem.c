@@ -3,7 +3,7 @@
 #include <xinu.h>
 #include <mem.h>
 #include <fat_filelib.h>
-#include <23lc.h>
+///#include <23lc.h>
 
 extern void exit(int);
 
@@ -41,7 +41,7 @@ Memory create_memory(const char *filename) {
     uint32 br=0;
     
 
-    printf("clear ram....\n");
+    printf("clear ram.... %d\n",DRAM_SIZE);
     for (int i = 0; i < DRAM_SIZE; ++i)
     {
        cache_write(i,0,1);// sramwrite(i,0,1);
@@ -78,3 +78,183 @@ Memory create_memory(const char *filename) {
 
  
  
+void Memory_Init() {
+    MemoryBlockHeader initialBlock = {
+        .size = MEMORY_TOTAL_SIZE,
+        .isFree = 1,
+        .nextAddress = 0
+    };
+
+    sramwrite(0,&initialBlock, BLOCK_HEADER_SIZE);
+    //SPI_Write(0, &initialBlock, BLOCK_HEADER_SIZE); // Escribir encabezado en dirección 0
+}
+
+
+/*
+void* Memory_Allocate(uint32_t size) {
+    uint32_t currentAddress = 0;
+    MemoryBlockHeader currentBlock;
+
+    while (currentAddress < MEMORY_TOTAL_SIZE) {
+        //SPI_Read(currentAddress, &currentBlock, BLOCK_HEADER_SIZE);
+        sramread(currentAddress,&currentBlock, BLOCK_HEADER_SIZE);
+        if (currentBlock.isFree && currentBlock.size >= size + BLOCK_HEADER_SIZE) {
+            // Dividir el bloque si sobra espacio
+            uint32_t remainingSize = currentBlock.size - size - BLOCK_HEADER_SIZE;
+            if (remainingSize > BLOCK_HEADER_SIZE) {
+                MemoryBlockHeader newBlock = {
+                    .size = remainingSize,
+                    .isFree = 1,
+                    .nextAddress = currentBlock.nextAddress
+                };
+
+                // Escribir el nuevo bloque en la memoria
+                uint32_t newBlockAddress = currentAddress + BLOCK_HEADER_SIZE + size;
+                sramwrite(newBlockAddress, &newBlock, BLOCK_HEADER_SIZE);
+
+                // Actualizar el bloque actual
+                currentBlock.size = size + BLOCK_HEADER_SIZE;
+                currentBlock.nextAddress = newBlockAddress;
+            }
+
+            currentBlock.isFree = 0;
+            sramwrite(currentAddress, &currentBlock, BLOCK_HEADER_SIZE);
+
+            return (void*)(currentAddress + BLOCK_HEADER_SIZE);
+        }
+
+        // Mover al siguiente bloque
+        if (currentBlock.nextAddress == 0) break;
+        currentAddress = currentBlock.nextAddress;
+    }
+
+    return NULL; // Sin espacio disponible
+}
+
+
+void Memory_Free(void* ptr) {
+    uint32_t blockAddress = (uint32_t)ptr - BLOCK_HEADER_SIZE;
+    MemoryBlockHeader currentBlock;
+
+    sramread(blockAddress, &currentBlock, BLOCK_HEADER_SIZE);
+    currentBlock.isFree = 1;
+    sramwrite(blockAddress, &currentBlock, BLOCK_HEADER_SIZE);
+
+    // Intentar combinar bloques adyacentes
+    uint32_t nextAddress = currentBlock.nextAddress;
+    if (nextAddress != 0) {
+        MemoryBlockHeader nextBlock;
+        sramread(nextAddress, &nextBlock, BLOCK_HEADER_SIZE);
+
+        if (nextBlock.isFree) {
+            currentBlock.size += nextBlock.size;
+            currentBlock.nextAddress = nextBlock.nextAddress;
+            sramwrite(blockAddress, &currentBlock, BLOCK_HEADER_SIZE);
+        }
+    }
+}
+*/
+uint32_t Memory_Allocate(uint32_t size) {
+    uint32_t currentAddress = 0;
+    MemoryBlockHeader currentBlock;
+
+    while (currentAddress < MEMORY_TOTAL_SIZE) {
+        // Leer el bloque actual de la memoria externa
+        sramread(currentAddress, &currentBlock, BLOCK_HEADER_SIZE);
+        
+        // Verificar si el bloque es libre y suficientemente grande
+        if (currentBlock.isFree && currentBlock.size >= size + BLOCK_HEADER_SIZE) {
+            // Dividir el bloque si sobra espacio
+            uint32_t remainingSize = currentBlock.size - size - BLOCK_HEADER_SIZE;
+            if (remainingSize > BLOCK_HEADER_SIZE) {
+                MemoryBlockHeader newBlock = {
+                    .size = remainingSize,
+                    .isFree = 1,
+                    .nextAddress = currentBlock.nextAddress
+                };
+
+                // Escribir el nuevo bloque en la memoria
+                uint32_t newBlockAddress = currentAddress + BLOCK_HEADER_SIZE + size;
+                sramwrite(newBlockAddress, &newBlock, BLOCK_HEADER_SIZE);
+
+                // Actualizar el bloque actual
+                currentBlock.size = size + BLOCK_HEADER_SIZE;
+                currentBlock.nextAddress = newBlockAddress;
+            }
+
+            // Marcar el bloque actual como ocupado
+            currentBlock.isFree = 0;
+            sramwrite(currentAddress, &currentBlock, BLOCK_HEADER_SIZE);
+
+            // Retornar la dirección de inicio del bloque asignado (después del encabezado)
+            return currentAddress + BLOCK_HEADER_SIZE;
+        }
+
+        // Mover al siguiente bloque
+        if (currentBlock.nextAddress == 0) break;
+        currentAddress = currentBlock.nextAddress;
+    }
+
+    return 0; // Sin espacio disponible
+}
+
+void Memory_Free(uint32_t address) {
+    uint32_t blockAddress = address - BLOCK_HEADER_SIZE;
+    MemoryBlockHeader currentBlock;
+
+    // Leer el bloque actual
+    sramread(blockAddress, &currentBlock, BLOCK_HEADER_SIZE);
+    currentBlock.isFree = 1; // Marcar como libre
+    sramwrite(blockAddress, &currentBlock, BLOCK_HEADER_SIZE);
+
+    // Intentar combinar con el bloque siguiente
+    uint32_t nextAddress = currentBlock.nextAddress;
+    if (nextAddress != 0) {
+        MemoryBlockHeader nextBlock;
+        sramread(nextAddress, &nextBlock, BLOCK_HEADER_SIZE);
+
+        if (nextBlock.isFree) {
+            // Combinar bloques
+            currentBlock.size += nextBlock.size;
+            currentBlock.nextAddress = nextBlock.nextAddress;
+            sramwrite(blockAddress, &currentBlock, BLOCK_HEADER_SIZE);
+        }
+    }
+}
+
+
+uint32_t Memory_GetFreeSize() {
+    uint32_t currentAddress = 0;
+    uint32_t freeSize = 0;
+    MemoryBlockHeader currentBlock;
+
+    // Recorrer todos los bloques en la memoria
+    while (currentAddress < MEMORY_TOTAL_SIZE) {
+        // Leer el encabezado del bloque actual
+        sramread(currentAddress, &currentBlock, BLOCK_HEADER_SIZE);
+
+        // Si el bloque está libre, sumar su tamaño
+        if (currentBlock.isFree) {
+            freeSize += currentBlock.size;
+        }
+
+        // Mover al siguiente bloque
+        if (currentBlock.nextAddress == 0) break;
+        currentAddress = currentBlock.nextAddress;
+    }
+
+    return freeSize;
+}
+
+
+
+
+void Memory_Write(uint32_t block, uint8_t* data, size_t len) {
+    //uint32_t address = (uint32_t)block;  // Convertir el puntero a dirección
+    sramwrite(block, data, len);
+}
+
+void Memory_Read(uint32_t block, uint8_t* buffer, size_t len) {
+    //uint32_t address = (uint32_t)block;  // Convertir el puntero a dirección
+    sramread(block, buffer, len);
+}

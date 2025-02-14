@@ -131,7 +131,7 @@ void WEAK  HASH_RNG_IRQHandler(void);
 void WEAK  FPU_IRQHandler(void);
 
 __attribute__((section(".isr_vector"))) void (*vector_table[])(void) = {
-  _estack,
+  0x10000000+0xfa00,//_estack,
   Reset_Handler,             /*!< Reset Handler                               */
   NMI_Handler,               /*!< NMI Handler                                 */
   HardFault_Handler,         /*!< Hard Fault Handler                          */

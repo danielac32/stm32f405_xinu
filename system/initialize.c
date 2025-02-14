@@ -111,10 +111,15 @@ int start_process(){
 	while (msg != pid) {
 		msg = receive();
 	}
-	ready(create(shell, 4096, 52, "shell", 1, 0));
+	ready(create(shell, 1024, 52, "shell", 1, 0));
 	return 0;
 }
- 
+
+
+uint32_t idleCycles = 0;
+uint32_t totalCycles = 0;
+
+
 
 int nullprocess(void) {
 
@@ -146,7 +151,9 @@ int nullprocess(void) {
 	
 	//resume(create(blink, 1024/2, 51, "blink", 0));
     //resume(create(blink1, INITSTK, 50, "blink1", 0));
-	 while(1);
+	 while(1){
+	 		idleCycles++;
+	 }
 	 return 0;
 }
 
@@ -172,10 +179,12 @@ void	nulluser()
    
     while(1){
 
-        if(!hw_get_pin(GPIOx(GPIO_A),0) || uart_available()){
+        if(!hw_get_pin(GPIOx(GPIO_A),0)){
             break;
         }
-        
+        if(uart_available()){
+        	  if(USART1->DR > '.')break;
+        }
         hw_toggle_pin(GPIOx(GPIO_A),8);
         delay(50);
     }
@@ -187,6 +196,7 @@ void	nulluser()
 						memptr = memptr->mnext) {
 		free_mem += memptr->mlength;
 	}
+	free(calloc(0,free_mem));
 	kprintf ("Build date: %s %s\n\n", __DATE__, __TIME__);
 	kprintf("%10d bytes of free memory.  Free list:\n", free_mem);
 	for (memptr=memlist.mnext; memptr!=NULL;memptr = memptr->mnext) {
@@ -205,7 +215,7 @@ void	nulluser()
  
 
 
-	int pid = create((void *)nullprocess, 2048, 10, "Null process", 0, NULL);
+	int pid = create((void *)nullprocess, 512, 10, "Null process", 0, NULL);
 	struct procent * prptr = &proctab[pid];
 	prptr->prstate = PR_CURR;
 

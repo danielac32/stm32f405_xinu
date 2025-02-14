@@ -53,6 +53,10 @@
 	#define MINIRV32_OTHERCSR_READ(...);
 #endif
 
+#ifndef MINIRV32_RETURNSYSCALL_HOST
+	#define MINIRV32_RETURNSYSCALL_HOST(...);
+#endif
+
 #ifndef MINIRV32_CUSTOM_MEMORY_BUS
 	#define MINIRV32_STORE4( ofs, val ) *(uint32_t*)(image + ofs) = val
 	#define MINIRV32_STORE2( ofs, val ) *(uint16_t*)(image + ofs) = val
@@ -424,7 +428,26 @@ MINIRV32_DECORATE int32_t MiniRV32IMAStep( struct MiniRV32IMAState * state, uint
 						{
 							switch( csrno )
 							{
-							case 0: trap = ( CSR( extraflags ) & 3) ? (11+1) : (8+1); break; // ECALL; 8 = "Environment call from U-mode"; 11 = "Environment call from M-mode"
+							//case 0: trap = ( CSR( extraflags ) & 3) ? (11+1) : (8+1); break; // ECALL; 8 = "Environment call from U-mode"; 11 = "Environment call from M-mode"
+							case 0:  // ECALL (Environment Call)
+        					{
+								uint32_t syscall_code = state->regs[17];  // Suponiendo que el valor de la syscall está en `rval`.
+								uint32_t code=0;
+					            if ((syscall_code & 0xFFFF0000) == 0xcafe0000)  // Comprobar si la syscall tiene el prefijo 0xcafe
+					            {
+					            	code = syscall_code & 0x0000ffff;
+					                // Aquí manejas la trampa para las syscalls que empiezan con 0xcafe
+					                //trap = 0x80000000 | 1;  // Establecer el trap como una interrupción, ejemplo, valor arbitrario.
+					            	//printf("aquiii trampa %x\n",code );
+					            	MINIRV32_RETURNSYSCALL_HOST(code,state->regs,state->regs[10]);
+					            }
+					            else
+					            {
+					                // Para syscalls regulares, usar el comportamiento normal (sin prefijo 0xcafe)
+					                trap = (CSR(extraflags) & 3) ? (11 + 1) : (8 + 1);
+					            }
+					            break;
+					        }
 							case 1:	trap = (3+1); break; // EBREAK 3 = "Breakpoint"
 							default: trap = (2+1); break; // Illegal opcode.
 							}

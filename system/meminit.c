@@ -18,7 +18,7 @@ void	meminit(void)
 
 	minheap = (void *)&end;
 	/* 1024 bytes is reserved for supervise mode handling */
-	maxheap = (void *)MAXADDR - HANDLERSTACK;
+	maxheap = (void *)MAXADDR;/*MAXADDR - HANDLERSTACK;*/
 
 	/* Initialize the memory list as one big block */
 

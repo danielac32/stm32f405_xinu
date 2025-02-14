@@ -41,6 +41,34 @@ char* full_path(const char* name) {
 /************************************************************************/
 /* Table of Xinu shell commands and the function associated with each	*/
 /************************************************************************/
+/*
+const	struct	cmdent	cmdtab[] = {
+	{"reboot",	FALSE,	xsh_reboot,100},
+	{"devdump",	FALSE,	xsh_devdump},
+	{"echo",	TRUE,	xsh_echo},
+	{"exit",	TRUE,	xsh_exit},
+	{"help",	FALSE,	xsh_help},
+	{"kill",	TRUE,	xsh_kill},
+	{"memdump",	FALSE,	xsh_memdump},
+	{"memstat",	TRUE,	xsh_memstat}, 
+	{"ps",		FALSE,	xsh_ps},
+	{"?",		FALSE,	xsh_help},
+	{"blink",   FALSE,  xsh_blink},
+	{"cd",      TRUE,   xsh_cd},
+	{"ls",      TRUE,   xsh_ls},
+	{"cat",     FALSE,  xsh_cat,1024},
+	{"dump",    FALSE,  xsh_dump},
+	{"mkdir",   TRUE,   xsh_mkdir},
+	{"pwd",     TRUE,   xsh_pwd},
+	{"rm",      TRUE,   xsh_rm},
+	{"touch",   TRUE,   xsh_touch},
+	{"run",     FALSE,  xsh_run},
+    {"format",  FALSE,  xsh_format},
+	{"test",    FALSE,  xsh_test,2048},
+	{"cpu",FALSE,xsh_cpu}
+
+};
+*/
 const	struct	cmdent	cmdtab[] = {
 	{"reboot",	FALSE,	xsh_reboot},
 	{"devdump",	FALSE,	xsh_devdump},
@@ -64,6 +92,7 @@ const	struct	cmdent	cmdtab[] = {
 	{"run",     FALSE,  xsh_run},
     {"format",  FALSE,  xsh_format},
 	{"test",    FALSE,  xsh_test},
+	{"cpu",FALSE,xsh_cpu}
 
 };
 

@@ -16,13 +16,14 @@ static uint32_t HandleControlStore( uint32_t addy, uint32_t val );
 static uint32_t HandleControlLoad( uint32_t addy );
 static void HandleOtherCSRWrite( uint8_t *image, uint16_t csrno, uint32_t value );
 static uint32_t HandleOtherCSRRead( uint8_t *image, uint16_t csrno );
+static uint32_t HandleOtherReturnSyscall( uint8_t * image, uint16_t csrno,uint32_t *reg);
 
 #define INSTRS_PER_FLIP 1024
 #define MICROSECOND_TICKS cycleCount() 
 
 #define MINIRV32WARN( x... ) printf( x );
 #define MINIRV32_DECORATE static
-#define MINI_RV32_RAM_SIZE 125000
+#define MINI_RV32_RAM_SIZE DRAM_SIZE
 #define MINIRV32_IMPLEMENTATION
 #define MINIRV32_POSTEXEC( pc, ir, retval )             \
 	{                                                   \
@@ -34,6 +35,8 @@ static uint32_t HandleOtherCSRRead( uint8_t *image, uint16_t csrno );
 #define MINIRV32_HANDLE_MEM_LOAD_CONTROL( addy, rval ) rval = HandleControlLoad( addy );
 #define MINIRV32_OTHERCSR_WRITE( csrno, value ) HandleOtherCSRWrite( image, csrno, value );
 #define MINIRV32_OTHERCSR_READ( csrno, rval )  { rval = HandleOtherCSRRead( image, csrno ); }
+#define MINIRV32_RETURNSYSCALL_HOST(csrno, reg,value) value = HandleOtherReturnSyscall(image,csrno,reg);
+
 
 #define MINIRV32_CUSTOM_MEMORY_BUS
 
@@ -376,6 +379,99 @@ int load_sd_file( uint32_t addr, const char filename[] )
     return 0;
 }
 
+
+
+enum {
+    SYS_FOPEN = 0x0001,
+    SYS_FCLOSE = 0x0002,
+    SYS_FFLUSH = 0x0003,
+    SYS_FGETC = 0x0004,
+    SYS_FGETS = 0x0005,
+    SYS_FPUTC = 0x0006,
+    SYS_FPUTS = 0x0007,
+    SYS_FWRITE = 0x0008,
+    SYS_FREAD = 0x0009,
+    SYS_FSEEK = 0x0010,
+    SYS_FGETPOS = 0x0011,
+    SYS_FTELL = 0x0012,
+    SYS_FEOF = 0x0013,
+    SYS_REMOVE = 0x0014,
+    SYS_MKDIR = 0x0015
+};
+
+static uint32_t HandleOtherReturnSyscall(uint8_t *image, uint16_t csrno, uint32_t *reg) {
+    uint32_t x = 0;
+
+    // Usamos un switch para manejar las syscalls
+    switch (csrno) {
+        case SYS_FOPEN:
+            // Lógica específica para la syscall SYS_FOPEN (0x0001)
+            x = 123; // Este es un valor de ejemplo, cámbialo según lo que necesites
+            break;
+        case SYS_FCLOSE:
+            // Lógica específica para la syscall SYS_FCLOSE (0x0002)
+            x = 555; // Otro valor de ejemplo
+            break;
+        case SYS_FFLUSH:
+            // Lógica para SYS_FFLUSH (0x0003)
+            x = 789;
+            break;
+        case SYS_FGETC:
+            // Lógica para SYS_FGETC (0x0004)
+            x = 456;
+            break;
+        case SYS_FGETS:
+            // Lógica para SYS_FGETS (0x0005)
+            x = 321;
+            break;
+        case SYS_FPUTC:
+            // Lógica para SYS_FPUTC (0x0006)
+            x = 654;
+            break;
+        case SYS_FPUTS:
+            // Lógica para SYS_FPUTS (0x0007)
+            x = 987;
+            break;
+        case SYS_FWRITE:
+            // Lógica para SYS_FWRITE (0x0008)
+            x = 1001;
+            break;
+        case SYS_FREAD:
+            // Lógica para SYS_FREAD (0x0009)
+            x = 2002;
+            break;
+        case SYS_FSEEK:
+            // Lógica para SYS_FSEEK (0x0010)
+            x = 3030;
+            break;
+        case SYS_FGETPOS:
+            // Lógica para SYS_FGETPOS (0x0011)
+            x = 4040;
+            break;
+        case SYS_FTELL:
+            // Lógica para SYS_FTELL (0x0012)
+            x = 5050;
+            break;
+        case SYS_FEOF:
+            // Lógica para SYS_FEOF (0x0013)
+            x = 6060;
+            break;
+        case SYS_REMOVE:
+            // Lógica para SYS_REMOVE (0x0014)
+            x = 7070;
+            break;
+        case SYS_MKDIR:
+            // Lógica para SYS_MKDIR (0x0015)
+            x = 8080;
+            break;
+        default:
+            // Si la syscall no se encuentra en el enum, manejamos un caso por defecto
+            x = 0; // Valor predeterminado si no se encuentra la syscall
+            break;
+    }
+
+    return x;
+}
 
 static inline void HandleOtherCSRWrite( uint8_t *image, uint16_t csrno, uint32_t value )
 {

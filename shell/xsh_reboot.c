@@ -42,5 +42,8 @@ shellcmd xsh_reboot(int nargs, char *args[])
 
    // uint32 r = syscall3(XINU_TEST2,0,0,0);
     //printf("%d\n", r);
+
+NVIC_SystemReset();
+
 	return 0;
 }

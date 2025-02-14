@@ -22,7 +22,7 @@
 
 //void __attribute__ ((naked)) clkhandler()
 
-
+extern uint32_t totalCycles;
 extern	void	ttyhandler(uint32, char c, int tipo);
 void TIM2_IRQHandler()
 {   
@@ -37,7 +37,7 @@ void TIM2_IRQHandler()
         }*/
 
 		count1000++;
-
+        totalCycles++;
 		/* After 1 sec, increment clktime */
 
 		if(count1000 >= 1000) {
@@ -63,6 +63,7 @@ void TIM2_IRQHandler()
 
 			if((--preempt) == 0) {
 				preempt = QUANTUM;
+
 				// PendSV call
 				PEND_SV();
 			}

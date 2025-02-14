@@ -42,7 +42,7 @@ pid32	create(
 		ssize = MINSTK;
 	ssize = (uint32) roundew(ssize);
 	
-	if (((saddr = (uint32 *)getstk(ssize)) ==
+	if (((saddr = (uint32 *)getstkcc(ssize)) ==//if (((saddr = (uint32 *)getstk(ssize)) ==
 	    (uint32 *)SYSERR ) ||
 	    (pid=newpid()) == SYSERR || priority < 1 ) {
 //		kprintf("create error %s\n",name);
@@ -225,7 +225,7 @@ syscall	kill(
 	for (i=0; i<3; i++) {
 		close(prptr->prdesc[i]);
 	}
-	freestk(prptr->prstkbase, prptr->prstklen);
+	freestkcc(prptr->prstkbase, prptr->prstklen);
 	//free(prptr->prstkbase);
     if(prptr->elf == TRUE){
 

@@ -15,7 +15,7 @@ void	meminitcc(void)
 
 	minheapcc = (void *)0x10000000;
 	/* 1024 bytes is reserved for supervise mode handling */
-	maxheapcc = (void *)MAXADDRCC;
+	maxheapcc = (void *)MAXADDRCC - HANDLERSTACK;;
 
 	/* Initialize the memory list as one big block */
 

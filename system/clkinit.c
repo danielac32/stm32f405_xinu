@@ -38,8 +38,15 @@ void clkinit(void)
     RCC->APB1ENR |= RCC_APB1ENR_TIM2EN;
     TIM2->CR1 |= (1 << 2);
     TIM2->PSC = 0x7;
-    TIM2->ARR = 0x1000;
+    TIM2->ARR = 0x1000/2;
     TIM2->DIER |= 0x1;
+
+    /*
+    TIM2->PSC = 83;       // Prescaler (84 MHz / (83 + 1) = 1 MHz)
+	TIM2->ARR = 999;      // Auto-reload (1 MHz / (999 + 1) = 1 kHz = 1 ms)
+	TIM2->DIER |= 0x1;    // Enable interrupt
+	TIM2->CR1 |= 0x1;     // Enable TIM2
+*/
     NVIC_DisableIRQ(TIM2_IRQn);
     //NVIC_EnableIRQ(TIM2_IRQn);
 	return;

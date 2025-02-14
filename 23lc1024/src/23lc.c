@@ -4,18 +4,6 @@
 #include <23lc.h>
 #include <gpio.h>
 
-#define MEMORY_SIZE    0x1e848//0x20000 // 128KB en bytes (0x20000)
-#define MEMORY_COUNT   3        // Número de memorias
-#define PSRAM_CMD_WRITE 0x02  // Comando de escritura para 23LC1024
-#define PSRAM_CMD_READ  0x03  // Comando de lectura para 23LC1024
-
-#define RDMR        5       // Read the Mode Register
-#define WRMR        1       // Write to the Mode Register
-#define READ        3       // Read command
-#define WRITE       2       // Write command
-#define RSTIO     0xFF      // Reset memory to SPI mode
-#define ByteMode    0x00    // Byte mode (read/write one byte at a time)
-#define Sequential  0x40    // Sequential mode (read/write blocks of memory)
 
 
 void SRAM_SPI_WRITE( uint8_t *buf, uint32_t size) {
@@ -67,7 +55,7 @@ static void setMode(uint8_t memoryIndex){
 
 void sramwrite(uint32_t addr, void *ptr, uint32_t size){
        // uint32_t q = disable();
-   // __disable_irq(); 
+    __disable_irq(); 
         uint8_t cmdAddr[5];
 	    uint8_t *p = (uint8_t *)ptr;
 	    uint8_t memoryIndex = addr / MEMORY_SIZE; // 0, 1 o 2
@@ -87,14 +75,14 @@ void sramwrite(uint32_t addr, void *ptr, uint32_t size){
         SRAM_SPI_WRITE(cmdAddr, 4);
         SRAM_SPI_WRITE(p, writeSize);
         release(memoryIndex);
-        //__enable_irq();   
+    __enable_irq();   
         //restore(q);
 }
  
 void sramread(uint32_t addr,void *ptr,uint32_t size){
         
         //uint32_t q = disable();
-    //__disable_irq(); 
+       __disable_irq(); 
 	    uint8_t cmdAddr[5];
 	    uint8_t *p = (uint8_t *)ptr;
 	    uint8_t memoryIndex = addr / MEMORY_SIZE; // 0, 1 o 2
@@ -113,7 +101,7 @@ void sramread(uint32_t addr,void *ptr,uint32_t size){
         SRAM_SPI_WRITE(cmdAddr, 4);
         SRAM_SPI_READ(p, readSize);
         release(memoryIndex);
-       // __enable_irq();   
+        __enable_irq();   
         //restore(q);
 }
 

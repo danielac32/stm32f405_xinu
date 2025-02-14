@@ -4,7 +4,7 @@
 
 #define SHELL_BUFLEN	TY_IBUFLEN+1	/* Length of input buffer	*/
 #define SHELL_MAXTOK	32		/* Maximum tokens per line	*/
-#define SHELL_CMDSTK	4096		/* Size of stack for process	*/
+#define SHELL_CMDSTK	4096/2		/* Size of stack for process	*/
 					/*    that executes command	*/
 #define	SHELL_ARGLEN	(SHELL_BUFLEN+SHELL_MAXTOK) /* Argument area	*/
 #define SHELL_CMDPRIO	20		/* Process priority for command	*/
@@ -69,6 +69,7 @@
 struct	cmdent	{			/* Entry in command table	*/
 	char	*cname;			/* Name of command		*/
 	bool8	cbuiltin;		/* Is this a builtin command?	*/
+   // uint32  stack;
 	int32	(*cfunc)(int32,char*[]);/* Function for command		*/
 };
 

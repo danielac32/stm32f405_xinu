@@ -5,6 +5,7 @@ extern shellcmd xsh_elf(int nargs, char *args[]);
 extern shellcmd xsh_vm(int nargs, char *args[]);
 extern shellcmd xsh_test(int nargs, char *args[]);
 extern shellcmd xsh_dump(int nargs, char *args[]);
+extern shellcmd xsh_cpu(int nargs, char *args[]);
 
 /* in file xsh_cat.c */
 //extern	shellcmd  xsh_cat	(int32, char *[]);
